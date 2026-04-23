@@ -31,17 +31,27 @@
                autocomplete="off"
                class="{% if erro_campo == 'email' %}erro-input{% endif %}">
 
-        <input type="password"
-               name="new_pass"
-               placeholder="Senha"
-               autocomplete="new-password"
-               class="{% if erro_campo == 'senha' %}erro-input{% endif %}">
+        <div class="input-wrapper" style="position: relative;">
+            <input type="password"
+                   name="new_pass"
+                   placeholder="Senha"
+                   autocomplete="new-password"
+                   class="{% if erro_campo == 'senha' %}erro-input{% endif %}"
+                   style="margin-bottom: 15px;">
+            <i class="fa-solid fa-eye toggle-password" 
+               style="position: absolute; right: 80px; top: 24%; cursor: pointer; color: #666; font-size: 18px;"></i>
+        </div>
 
-        <input type="password"
-               name="new_confirm"
-               placeholder="Confirmar senha"
-               autocomplete="new-password"
-               class="{% if erro_campo == 'senha' %}erro-input{% endif %}">
+        <div class="input-wrapper" style="position: relative;">
+            <input type="password"
+                   name="new_confirm"
+                   placeholder="Confirmar senha"
+                   autocomplete="new-password"
+                   class="{% if erro_campo == 'senha' %}erro-input{% endif %}"
+                   style="margin-bottom: 15px;">
+            <i class="fa-solid fa-eye toggle-password" 
+               style="position: absolute; right: 80px; top: 24%; cursor: pointer; color: #666; font-size: 18px;"></i>
+        </div>
 
         <button type="submit">Cadastrar</button>
     </form>
