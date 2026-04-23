@@ -3,8 +3,11 @@ from dotenv import load_dotenv
 import os
 
 
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+load_dotenv(BASE_DIR / ".env")
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 
@@ -13,10 +16,12 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
 EMAIL_HOST_USER = "apikey"
+EMAIL_HOST_PASSWORD = os.getenv("SENDGRID_API_KEY")
 SENDGRID_API_KEY = os.getenv("SENDGRID_API_KEY")
 
 DEFAULT_FROM_EMAIL = "suportekanban@outlook.com"
 
+SITE_NAME = 'Kanban'
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-llg7n9of+7^^8lshbhm-s4qwm-8_-ucnielt=c=lcpv=frb)=e'

@@ -8,6 +8,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Kanban{% endblock %}</title>
 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
     <style>
         *{
             font-family: Arial, Helvetica, sans-serif;
@@ -123,15 +125,33 @@
 {% block content %}{% endblock %}
 
 <script>
-document.querySelectorAll('.erro-input').forEach(input => {
+document.addEventListener('DOMContentLoaded', function() {
+    // 1. Lógica para alternar visibilidade da senha (Olhinho)
+    const toggleIcons = document.querySelectorAll('.toggle-password');
+    
+    toggleIcons.forEach(icon => {
+        icon.addEventListener('click', function() {
+            // Pega o input que está antes do ícone ou no mesmo wrapper
+            const input = this.parentElement.querySelector('input');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                this.classList.remove('fa-eye');
+                this.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                this.classList.remove('fa-eye-slash');
+                this.classList.add('fa-eye');
+            }
+        });
+    });
 
-    input.addEventListener('focus', limparErro);
-    input.addEventListener('input', limparErro);
-
-    function limparErro(){
-        input.classList.remove('erro-input');
-    }
-
+    // 2. Sua lógica de limpar erro que já existia
+    document.querySelectorAll('.erro-input').forEach(input => {
+        input.addEventListener('focus', function() {
+            this.classList.remove('erro-input');
+        });
+    });
 });
 </script>
 

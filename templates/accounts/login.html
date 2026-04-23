@@ -1,7 +1,6 @@
 {% extends 'base.html' %}
 
 {% block content %}
-
 <div class="tela-login">
     <h1>Kanban</h1>
     <p>Entre na sua conta</p>
@@ -14,15 +13,20 @@
                placeholder="Usuário ou Email"
                autocomplete="off">
 
-        <input type="password"
-               name="login_pass"
-               placeholder="Senha"
-               autocomplete="new-password">
+        <div class="input-wrapper" style="position: relative;">
+            <input type="password"
+                   name="login_pass"
+                   id="id_password"
+                   placeholder="Senha"
+                   autocomplete="new-password"
+                   style="margin-bottom: 0;"> <i class="fa-solid fa-eye toggle-password" 
+               style="position: absolute; right: 15px; top: 38%; cursor: pointer; color: #666; font-size: 18px;"></i>
+        </div>
 
-        <button type="submit">Entrar</button>
+        <button type="submit" style="margin-top: 25px;">Entrar</button>
     </form>
+    
     <a href="/accounts/password_reset">Esqueci minha senha</a><br>
     <a href="/register/">Não possui conta? Criar agora</a>
 </div>
-
 {% endblock %}
