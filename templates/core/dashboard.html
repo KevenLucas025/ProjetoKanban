@@ -4,9 +4,59 @@
 
 {% block content %}
 
-<div class="tela-login">
-    <h1>Bem-vindo, {{ request.user.username }}</h1>
-    <p>Seu Kanban está pronto.</p>
+<div class="dashboard">
+
+    <header class="topbar">
+        <h1>Kanban</h1>
+
+        
+    </header>
+
+    <div class="board">
+
+        <div class="coluna">
+            <h2>📌 A Fazer</h2>
+
+            <div class="card-task">
+                Criar tela de login
+            </div>
+
+            <div class="card-task">
+                Ajustar responsividade
+            </div>
+        </div>
+
+        <div class="coluna">
+            <h2>Pendente</h2>
+        </div>
+        <div class="coluna">
+            <h2>Cancelado</h2>
+        </div>
+        <div class="coluna">
+            <h2>Aguardando Autorização</h2>
+        </div>
+        <div class="coluna">
+            <h2>Falta finalizar</h2>
+        </div>
+
+        <div class="coluna">
+            <h2>🚀 Em Progresso</h2>
+
+            <div class="card-task">
+                Desenvolver dashboard
+            </div>
+        </div>
+
+        <div class="coluna">
+            <h2>✅ Concluído</h2>
+
+            <div class="card-task">
+                Sistema de recuperação de senha
+            </div>
+        </div>
+
+    </div>
+
 </div>
 
 {% endblock %}
