@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+
+<div class="tela-login">
+    <h1>Bem-vindo, {{ request.user.username }}</h1>
+    <p>Seu Kanban está pronto.</p>
+</div>
+
+{% endblock %}
