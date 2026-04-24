@@ -9,7 +9,40 @@
     <header class="topbar">
         <h1>Kanban</h1>
 
-        
+        <div class="user-menu">
+            <div class="user-avatar" onclick="togleMenu()">
+                {% if request.user.profile.foto %}
+                    <img src="{{ request.user.profile.foto.url }}" alt="Foto">
+                {% else %}
+                    {{ request.user.username | slice:":1"|upper }}
+                {% endif %}
+            </div>
+
+            <div class="dropdown-menu" id="menuPerfil">
+
+                <a href="javascript:void(0)" onclick="abrirUpload()">
+                    📷 Adicionar Foto
+                </a>
+
+                <a href="javascript:void(0)" onclick="removerFoto()">❌ Remover Foto</a>
+
+                <a href="#">👁️ Visualizar Foto</a>
+
+                <a href="#">👤 Meus Dados</a>
+
+                <a href="#"> Sair</a>
+
+            </div>
+
+            <form id="formFoto" 
+                method="POST" 
+                action="{% url 'upload_foto' %}" 
+                enctype="multipart/form-data" 
+                style="display:none;">
+                {% csrf_token %}
+                <input type="file" name="foto" id="inputFoto" accept="image/*">
+            </form>
+        </div>
     </header>
 
     <div class="board">
@@ -57,6 +90,32 @@
 
     </div>
 
+    <div id="modalCrop" class="modal-crop">
+    <div class="crop-box">
+        <button class="btn-fechar" onclick="fecharModalCrop()">✕</button>
+
+        <div class="crop-area">
+            <img id="imagemCrop">
+
+            <button class="btn-confirmar" onclick="confirmarCrop()">
+                ✔
+            </button>
+        </div>
+
+    </div>
 </div>
+
+    <div id="modalRemover" class="modal-confirmar">
+        <div class="box-confirmar">
+            <h3>Remover Imagem?</h3>
+            <p>Deseja realmente remover a sua foto de perfil? </p>
+
+            <div class="acoes-modal">
+                <button onclick="fecharRemover()" class="btn-cancelar">Cancelar</button>
+                <button onclick="confirmarRemover()" class="btn-remover">Remover</button>
+            </div>
+        </div>
+    </div>
+    <div id="toastSucesso" class="toast-sucesso">✅ Foto removida com sucesso</div>
 
 {% endblock %}

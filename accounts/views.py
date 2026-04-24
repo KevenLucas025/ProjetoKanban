@@ -1,6 +1,10 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_protect
+from django.http import JsonResponse
+from .models import Profile
 from django.contrib import messages
 
 
@@ -40,10 +44,14 @@ def register_view(request):
 
     if request.method == 'POST':
 
-        username = request.POST.get('username')
-        email = request.POST.get('email')
-        password = request.POST.get('password')
-        confirm = request.POST.get('confirm')
+        username = request.POST.get('new_user','').strip()
+        email = request.POST.get('new_email','').strip()
+        password = request.POST.get('new_pass','').strip()
+        confirm = request.POST.get('new_confirm','').strip()
+        
+        if not username or not email or not password:
+            messages.error(request, "Preencha todos os campos")
+            return render(request, 'accounts/register.html')
 
         if password != confirm:
             messages.error(request, "As senhas não coincidem")
@@ -75,3 +83,32 @@ def register_view(request):
         })
 
     return render(request, 'accounts/register.html')
+
+@login_required
+@csrf_protect
+def upload_foto(request):
+    if request.method == "POST" and request.FILES.get("foto"):
+        
+        profile, created  = Profile.objects.get_or_create(
+            user=request.user
+        )
+        
+        profile.foto = request.FILES["foto"]
+        profile.save()
+    return redirect("dashboard")
+
+@login_required
+@csrf_protect
+def remover_foto(request):
+    if request.method == "POST":
+
+        profile, created = Profile.objects.get_or_create(
+            user=request.user
+        )
+
+        if profile.foto:
+            profile.foto.delete(save=False)
+            profile.foto = None
+            profile.save()
+
+        return JsonResponse({"status": "ok"})

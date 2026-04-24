@@ -9,6 +9,7 @@
     <title>{% block title %}Kanban{% endblock %}</title>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
 
     <style>
         *{
@@ -52,7 +53,7 @@
         input:focus{
             border-color: #2563eb;
         }
-        button{
+        .tela-login button{
             display:block;
             width:70%;
             margin:0 auto;
@@ -154,13 +155,68 @@
         body{
             background: linear-gradient(135deg, #0f172a, #1e293b, #334155);
         }
-
         /* Topo */
         .topbar{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 30px;
             color: white;
         }
+        .user-avatar{
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #2563eb;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0, 1, 1);
+            transition: 0.3s;
+            overflow: hidden;
+            border: 2px solid white;
+        }
+        .user-avatar:hover{
+            transform: scale(1.05);
+            background:#1d4ed8;
+        }
+        .user-avatar img{
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+        .user-menu{
+            position: relative;
+        }
+        .dropdown-menu{
+            position: absolute;
+            right: 0;
+            top: 60px;
+            width: 220px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 15px 30px rgba(0,0, 0, 0.15);
+            display: none;
+            overflow: hidden;
+            z-index: 999;
+        }
+        .dropdown-menu a{
+            display: block;
+            padding: 14px;
+            color: #111827;
+            text-decoration: none;
+            font-size: 15px;
+            border-bottom: 1px solid #eee;
 
+        }
+        .dropdown-menu a:hover{
+            background:#f3f4f6;
+        }
         .topbar h1{
             font-size: 42px;
             margin: 0;
@@ -204,43 +260,420 @@
         .card-task:hover{
             transform: translateY(-2px);
         }
+        .modal-crop{
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.65);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 5000;
+        }
+        .crop-box{
+            background: white;
+            padding: 25px;
+            width: 560px;
+            max-width: 95%;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        #imagemCrop{
+            max-width: 100%;
+            max-height: 500px;
+            display: block;
+            margin: auto;
+        }
+        .crop-area{
+            position: relative;
+        }
+        .btn-confirmar{
+            position: absolute;
+            bottom: 15px;
+            left: 85%;
+            transform: translateX(-50%);
+            background: #2563eb;
+            color: white;
+            border: none;
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            font-size: 22px;
+            cursor: pointer;
+            z-index: 999;
+        }
+        .btn-confirmar:hover{
+            background-color: #1d4eb8;
+        }
+        .btn-fechar{
+            position: absolute;
+            top: 170px;
+            right: 535px;
+
+            width: 24px !important;
+            height: 24px !important;
+            min-width: 24px;
+            min-height: 24px;
+            padding: 0 !important;
+
+            color: black;
+
+            border: none;
+            background: transparent;
+ 
+            font-size: 16px;
+            font-weight: bold;
+
+            cursor: pointer;
+            z-index: 1000;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-fechar:hover{
+            background: #e81123;
+        }
+        .modal-confirmar{
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.55);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        .box-confirmar{
+            background: white;
+            width: 380px;
+            max-width: 90%;
+            border-radius: 14px;
+            padding: 25px;
+            text-align: center;
+            animation: aparecer .2s ease;
+        }
+        .box-confirmar h3{
+            margin: 0 0 10px;
+            font-size: 22px;
+        }
+
+        .box-confirmar p{
+            color: #6b7280;
+            margin-bottom: 25px;
+        }
+
+        .acoes-modal{
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+        .btn-cancelar,
+        .btn-remover{
+            border: none;
+            padding: 12px 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .btn-cancelar{
+            background: #e5e7eb;
+        }
+
+        .btn-remover{
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-remover:hover{
+            background: #dc2626;
+        }
+
+        .toast-sucesso{
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+
+            background: #22c55e;
+            color: white;
+
+            padding: 14px 18px;
+            border-radius: 12px;
+
+            box-shadow: 0 12px 30px rgba(0,0,0,.18);
+
+            font-size: 15px;
+            font-weight: 500;
+
+            z-index: 99999;
+
+            min-width: 260px;
+
+            transform: translateX(400px);
+            opacity: 0;
+
+            transition: all .45s ease;
+        }
+        /* quando aparecer */
+        .toast-sucesso.show{
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        @keyframes aparecer{
+            from{
+                opacity:0;
+                transform: scale(.9);
+            }
+            to{
+                opacity:1;
+                transform: scale(1);
+            }
+        }
 
     </style>
 </head>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
 <body>
 
 {% block content %}{% endblock %}
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // 1. Lógica para alternar visibilidade da senha (Olhinho)
+
+    // 1. Olhinho da senha
     const toggleIcons = document.querySelectorAll('.toggle-password');
-    
+
     toggleIcons.forEach(icon => {
         icon.addEventListener('click', function() {
-            // Pega o input que está antes do ícone ou no mesmo wrapper
+
             const input = this.parentElement.querySelector('input');
-            
+
             if (input.type === 'password') {
                 input.type = 'text';
-                this.classList.remove('fa-eye');
-                this.classList.add('fa-eye-slash');
+                this.classList.replace('fa-eye', 'fa-eye-slash');
             } else {
                 input.type = 'password';
-                this.classList.remove('fa-eye-slash');
-                this.classList.add('fa-eye');
+                this.classList.replace('fa-eye-slash', 'fa-eye');
             }
+
         });
     });
 
-    // 2. Sua lógica de limpar erro que já existia
+
+    // 2. Limpar erro inputs
     document.querySelectorAll('.erro-input').forEach(input => {
         input.addEventListener('focus', function() {
             this.classList.remove('erro-input');
         });
     });
+
+
+    // 3. Toast após recarregar página (foto removida)
+    if(sessionStorage.getItem("fotoRemovida")){
+
+        sessionStorage.removeItem("fotoRemovida");
+
+        const toast = document.getElementById("toastSucesso");
+
+        if(toast){
+
+            toast.innerHTML = "✅ Foto removida com sucesso";
+            toast.style.background = "#22c55e";
+
+            toast.classList.add("show");
+
+            setTimeout(() => {
+                toast.classList.remove("show");
+            }, 2500);
+        }
+    }
+
 });
+
+
+// =======================
+// FUNÇÕES GLOBAIS
+// =======================
+
+function togleMenu(){
+
+    const menu = document.getElementById("menuPerfil");
+
+    if(menu){
+        menu.style.display =
+            (menu.style.display === "block") ? "none" : "block";
+    }
+
+}
+
+function abrirUpload(){
+    document.getElementById("inputFoto").click();
+}
+
+
+// Fechar menu clicando fora
+document.addEventListener("click", function(e) {
+
+    const menu = document.getElementById("menuPerfil");
+
+    if(menu && !e.target.closest(".user-menu")){
+        menu.style.display = "none";
+    }
+
+});
+
+
+// =======================
+// CROPPER FOTO
+// =======================
+
+let cropper;
+
+document.getElementById("inputFoto").addEventListener("change", function(e){
+
+    const file = e.target.files[0];
+
+    if(file){
+
+        const reader = new FileReader();
+
+        reader.onload = function(event){
+
+            document.getElementById("imagemCrop").src = event.target.result;
+
+            document.getElementById("modalCrop").style.display = "flex";
+
+            cropper = new Cropper(
+                document.getElementById("imagemCrop"),
+                {
+                    aspectRatio: 1,
+                    viewMode: 1,
+                    dragMode: "move",
+
+                    ready() {
+                        cropper.setCropBoxData({
+                            left: 120,
+                            top: 140,
+                            width: 300,
+                            height: 300
+                        });
+                    }
+                }
+            );
+
+        };
+
+        reader.readAsDataURL(file);
+    }
+
+});
+
+
+function confirmarCrop(){
+
+    cropper.getCroppedCanvas({
+        width: 300,
+        height: 300
+    }).toBlob(function(blob){
+
+        let formData = new FormData();
+
+        formData.append("foto", blob);
+
+        formData.append(
+            "csrfmiddlewaretoken",
+            document.querySelector("[name=csrfmiddlewaretoken]").value
+        );
+
+        fetch("/upload-foto/", {
+            method: "POST",
+            body: formData
+        })
+        .then(() => location.reload());
+
+    });
+
+}
+
+
+function fecharModalCrop(){
+
+    document.getElementById("modalCrop").style.display = "none";
+
+    if(cropper){
+        cropper.destroy();
+        cropper = null;
+    }
+
+    document.getElementById("inputFoto").value = "";
+}
+
+
+
+// =======================
+// REMOVER FOTO
+// =======================
+
+function removerFoto(){
+
+    const avatar = document.querySelector(".user-avatar img");
+
+    // não existe foto
+    if(!avatar){
+
+        const toast = document.getElementById("toastSucesso");
+
+        toast.innerHTML = "⚠️ Não há imagem para remover";
+        toast.style.background = "#f59e0b";
+
+        toast.classList.add("show");
+
+        setTimeout(() => {
+            toast.classList.remove("show");
+        }, 2500);
+
+        return;
+    }
+
+    // existe foto
+    document.getElementById("modalRemover").style.display = "flex";
+}
+
+
+function fecharRemover(){
+    document.getElementById("modalRemover").style.display = "none";
+}
+
+
+function confirmarRemover(){
+
+    fetch("/remover-foto/", {
+        method: "POST",
+        headers: {
+            "X-CSRFToken":
+                document.querySelector("[name=csrfmiddlewaretoken]").value
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+
+        if(data.status === "ok"){
+
+            fecharRemover();
+
+            sessionStorage.setItem("fotoRemovida", "1");
+
+            location.reload();
+        }
+
+    });
+
+}
+
+</script>
+
 </script>
 
 </body>
