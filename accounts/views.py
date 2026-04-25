@@ -3,9 +3,11 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_protect
+from django.contrib.auth import logout
 from django.http import JsonResponse
-from .models import Profile
+from .models import Card, Profile
 from django.contrib import messages
+import json
 
 
 def login_view(request):
@@ -43,13 +45,14 @@ def login_view(request):
 def register_view(request):
 
     if request.method == 'POST':
-
+        
+        nome_completo = request.POST.get('nome_completo','').strip()
         username = request.POST.get('new_user','').strip()
         email = request.POST.get('new_email','').strip()
         password = request.POST.get('new_pass','').strip()
         confirm = request.POST.get('new_confirm','').strip()
         
-        if not username or not email or not password:
+        if not nome_completo or not username or not email or not password:
             messages.error(request, "Preencha todos os campos")
             return render(request, 'accounts/register.html')
 
@@ -74,7 +77,8 @@ def register_view(request):
         User.objects.create_user(
             username=username,
             email=email,
-            password=password
+            password=password,
+            first_name=nome_completo
         )
 
         messages.success(request, "Conta criada com sucesso")
@@ -112,3 +116,46 @@ def remover_foto(request):
             profile.save()
 
         return JsonResponse({"status": "ok"})
+    
+def logout_view(request):
+    logout(request)
+    return redirect("login")
+
+@login_required
+def criar_card(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+
+        card = Card.objects.create(
+            user=request.user,
+            titulo=data["titulo"],
+            coluna=data["coluna"]
+        )
+        print("CRIANDO CARD:", data)
+        print("CARD SALVO:", card.id)
+
+        return JsonResponse({
+            "id": card.id,
+            "titulo": card.titulo
+        })
+        
+@login_required   
+def renomear_card(request, id):
+    if request.method == "POST":
+        data = json.loads(request.body)
+
+        card = Card.objects.get(id=id, user=request.user)
+        card.titulo = data["titulo"]
+        card.save()
+
+        return JsonResponse({"status":"ok"})
+    
+@login_required   
+def excluir_card(request, id):
+    if request.method == "POST":
+        card = Card.objects.get(id=id, user=request.user)
+        card.delete()
+
+        return JsonResponse({"status":"ok"})
+    
+    

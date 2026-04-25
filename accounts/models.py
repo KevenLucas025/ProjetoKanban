@@ -29,3 +29,30 @@ def criar_profile(sender, instance, created, **kwargs):
 @receiver(post_save, sender=User)
 def salvar_profile(sender, instance, **kwargs):
     instance.profile.save()
+    
+    
+    
+class Card(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE
+    )
+
+    titulo = models.CharField(
+        max_length=200
+    )
+
+    coluna = models.CharField(
+        max_length=100
+    )
+
+    ordem = models.IntegerField(
+        default=0
+    )
+
+    criado_em = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    def __str__(self):
+        return self.titulo

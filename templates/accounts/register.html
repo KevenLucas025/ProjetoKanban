@@ -20,6 +20,12 @@
     <form method="POST" autocomplete="off">
         {% csrf_token %}
 
+        <input 
+            type="text" 
+            name="nome_completo" 
+            placeholder="Nome Completo"
+            autocomplete="off">
+
         <input type="text"
                name="new_user"
                placeholder="Usuário"
