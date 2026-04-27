@@ -158,4 +158,43 @@ def excluir_card(request, id):
 
         return JsonResponse({"status":"ok"})
     
+@login_required
+def excluir_lista(request,coluna):
+    if request.method == "POST":
+        
+        Card.objects.filter(
+            user=request.user,
+            coluna=coluna
+        ).delete()
+        
+    return JsonResponse({"status":"ok"})
+
+@login_required
+def criar_card_global(request):
+
+    data = json.loads(request.body)
+
+    titulo = data["titulo"]
+    colunas = data["colunas"]
+
+    cards_data = {}
+
+    for coluna in colunas:
+        card = Card.objects.create(
+            titulo=titulo,
+            coluna=coluna,
+            user=request.user
+        )
+
+        cards_data[coluna] = {
+            "id": card.id,
+            "data": card.criado_em.strftime("%d/%m/%Y")
+        }
+
+    return JsonResponse({
+        "status": "ok",
+        "titulo": titulo,
+        "cards": cards_data
+    })
+    
     

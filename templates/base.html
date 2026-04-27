@@ -10,6 +10,7 @@
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <style>
         *{
@@ -246,15 +247,34 @@
 
         /* Card da coluna */
         .coluna{
-            width: 280px;
-            min-height: 650px;
+            flex: 0 0 200px; /* largura fixa no flex */
+            min-width: 300px;
+
+            height: 650px;
             background: #f1f5ff;
             border-radius: 14px;
             padding: 20px;
-            flex-shrink: 0;
+
             box-shadow: 0 10px 25px rgba(0,0,0,0.15);
             border: 1px solid rgba(0,0,0,0.05);
-            transition: 0.2s;
+
+            display: flex;
+            flex-direction: column;
+        }
+        .lista-cards{
+            overflow-y: auto;
+            flex: 1; /* ocupa o espaço restante da coluna */
+            padding-right: 6px;
+        }
+
+        /* opcional: melhorar visual do scroll */
+        .lista-cards::-webkit-scrollbar{
+            width: 6px;
+        }
+
+        .lista-cards::-webkit-scrollbar-thumb{
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
         }
         .coluna:hover{
             transform: translateY(-3px);
@@ -290,7 +310,12 @@
             box-shadow: 0 3px 8px rgba(0,0,0,0.08);
             cursor: pointer;
             transition: 0.2s;
+            position: relative;
+            z-index: 1;
             
+        }
+        .card-task.menu-open{
+            z-index: 99999;
         }
         
 
@@ -406,12 +431,21 @@
             justify-content: center;
         }
         .btn-cancelar,
-        .btn-remover{
+        .btn-remover,
+        .btn-salvar{
             border: none;
             padding: 12px 18px;
             border-radius: 10px;
             cursor: pointer;
             font-weight: bold;
+        }
+        .btn-salvar{
+            background: #22c55e;
+            color: white;
+        }
+
+        .btn-salvar:hover{
+            background: #16a34a;
         }
 
         .btn-cancelar{
@@ -668,7 +702,7 @@
             border-radius:10px;
             box-shadow:0 10px 25px rgba(0,0,0,.15);
             display:none;
-            z-index:50;
+            z-index:100000;
             overflow:hidden;
         }
 
@@ -736,581 +770,253 @@
         .menu-card a:hover{
             background:#f3f4f6;
         }
-        
 
+        .filtro-data{
+            display:flex;
+            gap:14px;
+            position: relative;
+            top: 50px;
+        }
+
+        .campo-data label{
+            color:white;
+            font-size:14px;
+            font-weight:600;
+        }
+
+        .campo-data input{
+            width:150px;
+            padding:10px 10px;
+            
+            border:none;
+            border-radius:10px;
+            background:white;
+            color:#111827;
+            font-size:14px;
+            box-shadow:0 8px 18px rgba(0,0,0,.12);
+            cursor:pointer;
+        }
+
+        .campo-data input:focus{
+            outline:none;
+            box-shadow:0 0 0 3px rgba(37,99,235,.35);
+        }
+        .btn-filtrar{
+            height:42px;
+            padding:0 18px;
+            border:none;
+            border-radius:10px;
+            background:#2563eb;
+            color:white;
+            font-weight:600;
+            cursor:pointer;
+            position: relative;
+            top:-3px;
+            transition:.2s;
+        }
+
+        .btn-filtrar:hover{
+            background:#1d4ed8;
+        }
+        .toast-alerta{
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+
+            background: #ef4444;
+            color: white;
+
+            padding: 16px 22px;
+            border-radius: 14px;
+
+            box-shadow: 0 20px 60px rgba(0,0,0,.35);
+
+            font-size: 16px;
+            font-weight: 600;
+
+            z-index: 99999;
+
+            min-width: 280px;
+            text-align: center;
+
+            opacity: 0;
+            pointer-events: none;
+
+            transition: all .25s ease;
+        }
+
+        .toast-alerta.show{
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+        .toast-alerta.hide{
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0.85);
+        }
+        .data-card{
+            display:block;
+            margin-top:6px;
+            font-size:12px;
+            color:#6b7280;
+        }
+        .btn-menu-lateral {
+            position: fixed;
+            left: -100px;
+            top: 20px;
+
+            background: #1f2937; /* cinza escuro moderno */
+            color: white;
+            border: none;
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 20px;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-menu-lateral:hover {
+            background: #111827;
+            transform: scale(1.05);
+        }
+        .offcanvas {
+            width: 260px !important; /* reduz tamanho */
+            background: #111827; /* fundo escuro elegante */
+            color: white;
+            border-right: 1px solid rgba(255,255,255,0.1);
+        }
+        .offcanvas-body .btn {
+            border-radius: 10px;
+            font-size: 14px;
+            padding: 10px;
+        }
+
+        .offcanvas-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: white;
+        }
+        .btn-close-custom {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            opacity: 0.8;
+            transition: 0.2s;
+            line-height: 1;
+        }
+
+        .btn-close-custom:hover {
+            opacity: 1;
+            transform: scale(1.15);
+        }
+        
+        /* faixa vertical atrás do botão */
+        .topo-esquerda::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 70px; /* largura da faixa */
+            background: rgba(0, 0, 0, 0.25); /* preto fosco */
+            backdrop-filter: blur(6px); /* efeito vidro fosco */
+            -webkit-backdrop-filter: blur(6px);
+            border-right: 1px solid rgba(255,255,255,0.08);
+            z-index: 0;
+        }
+
+        /* garante que o conteúdo fique acima da faixa */
+        .btn-menu-lateral { 
+            position: relative;
+            z-index: 1;
+        }
+        .main-content{
+            margin-left: 80px;
+            width: calc(100% - 80px);
+        }
+        .checkbox-colunas{
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        /* cada item vira um "card" clicável */
+        .check-item{
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+            padding: 12px 14px;
+            border-radius: 10px;
+
+            background: #f8fafc;
+            border: 1px solid #e5e7eb;
+
+            cursor: pointer;
+
+            transition: all 0.2s ease;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* hover bonito */
+        .check-item:hover{
+            background: #eef2ff;
+            border-color: #c7d2fe;
+            transform: translateY(-1px);
+        }
+
+        /* checkbox padrão escondido */
+        .check-item input[type="checkbox"]{
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        /* quando marcado */
+        .check-item input[type="checkbox"]:checked + span{
+            color: #2563eb;
+            font-weight: 600;
+        }
+
+        /* efeito visual quando marcado (card ativo) */
+        .check-item:has(input:checked){
+            background: #e0e7ff;
+            border-color: #6366f1;
+        }
+        #modalNovoCardGlobal {
+            z-index: 9999 !important; /* Deve ser maior que o do Offcanvas (1050) */
+        }
+
+        .box-confirmar input[type="text"] {
+            position: relative;
+            z-index: 10000;
+            background: white !important;
+            color: black !important;
+        }
+                        
     </style>
 </head>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <body>
 
-{% block content %}{% endblock %}
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-
-    // 1. Olhinho da senha
-    const toggleIcons = document.querySelectorAll('.toggle-password');
-
-    toggleIcons.forEach(icon => {
-        icon.addEventListener('click', function() {
-
-            const input = this.parentElement.querySelector('input');
-
-            if (input.type === 'password') {
-                input.type = 'text';
-                this.classList.replace('fa-eye', 'fa-eye-slash');
-            } else {
-                input.type = 'password';
-                this.classList.replace('fa-eye-slash', 'fa-eye');
-            }
-
-        });
-    });
-
-
-    // 2. Limpar erro inputs
-    document.querySelectorAll('.erro-input').forEach(input => {
-        input.addEventListener('focus', function() {
-            this.classList.remove('erro-input');
-        });
-    });
-
-
-    // 3. Toast após recarregar página (foto removida)
-    if(sessionStorage.getItem("fotoRemovida")){
-
-        sessionStorage.removeItem("fotoRemovida");
-
-        const toast = document.getElementById("toastSucesso");
-
-        if(toast){
-
-            toast.innerHTML = "✅ Foto removida com sucesso";
-            toast.style.background = "#22c55e";
-
-            toast.classList.add("show");
-
-            setTimeout(() => {
-                toast.classList.remove("show");
-            }, 2500);
-        }
-    }
-
-});
-
-
-// =======================
-// FUNÇÕES GLOBAIS
-// =======================
-
-function togleMenu(){
-
-    const menu = document.getElementById("menuPerfil");
-
-    if(menu){
-        menu.style.display =
-            (menu.style.display === "block") ? "none" : "block";
-    }
-
-}
-
-function abrirUpload(){
-    document.getElementById("inputFoto").click();
-}
-
-
-// Fechar menu clicando fora
-document.addEventListener("click", function(e) {
-
-    const menu = document.getElementById("menuPerfil");
-
-    if(menu && !e.target.closest(".user-menu")){
-        menu.style.display = "none";
-    }
-
-});
-
-
-// =======================
-// CROPPER FOTO
-// =======================
-
-let cropper;
-
-document.getElementById("inputFoto").addEventListener("change", function(e){
-
-    const file = e.target.files[0];
-
-    if(file){
-
-        const reader = new FileReader();
-
-        reader.onload = function(event){
-
-            document.getElementById("imagemCrop").src = event.target.result;
-
-            document.getElementById("modalCrop").style.display = "flex";
-
-            cropper = new Cropper(
-                document.getElementById("imagemCrop"),
-                {
-                    aspectRatio: 1,
-                    viewMode: 1,
-                    dragMode: "move",
-
-                    ready() {
-                        cropper.setCropBoxData({
-                            left: 120,
-                            top: 140,
-                            width: 300,
-                            height: 300
-                        });
-                    }
-                }
-            );
-
-        };
-
-        reader.readAsDataURL(file);
-    }
-
-});
-
-
-function confirmarCrop(){
-
-    cropper.getCroppedCanvas({
-        width: 300,
-        height: 300
-    }).toBlob(function(blob){
-
-        let formData = new FormData();
-
-        formData.append("foto", blob);
-
-        formData.append(
-            "csrfmiddlewaretoken",
-            document.querySelector("[name=csrfmiddlewaretoken]").value
-        );
-
-        fetch("/upload-foto/", {
-            method: "POST",
-            body: formData
-        })
-        .then(() => location.reload());
-
-    });
-
-}
-
-
-function fecharModalCrop(){
-
-    document.getElementById("modalCrop").style.display = "none";
-
-    if(cropper){
-        cropper.destroy();
-        cropper = null;
-    }
-
-    document.getElementById("inputFoto").value = "";
-}
-
-
-
-// =======================
-// REMOVER FOTO
-// =======================
-
-function removerFoto(){
-
-    const avatar = document.querySelector(".user-avatar img");
-
-    // não existe foto
-    if(!avatar){
-
-        const toast = document.getElementById("toastSucesso");
-
-        toast.innerHTML = "⚠️ Não há imagem para remover";
-        toast.style.background = "#f59e0b";
-
-        toast.classList.add("show");
-
-        setTimeout(() => {
-            toast.classList.remove("show");
-        }, 2500);
-
-        return;
-    }
-
-    // existe foto
-    document.getElementById("modalRemover").style.display = "flex";
-}
-
-
-function fecharRemover(){
-    document.getElementById("modalRemover").style.display = "none";
-}
-
-
-function confirmarRemover(){
-
-    fetch("/remover-foto/", {
-        method: "POST",
-        headers: {
-            "X-CSRFToken":
-                document.querySelector("[name=csrfmiddlewaretoken]").value
-        }
-    })
-    .then(res => res.json())
-    .then(data => {
-
-        if(data.status === "ok"){
-
-            fecharRemover();
-
-            sessionStorage.setItem("fotoRemovida", "1");
-
-            location.reload();
-        }
-
-    });
-
-}
-function sairSistema(){
-    document.getElementById("modal-Sair").style.display = "flex";
-}
-function fecharSair(){
-    document.getElementById("modal-Sair").style.display = "none";
-}
-function confirmarSair(){
-    window.location.href = "/logout/";
-}
-
-function visualizarFoto(){
-    const avatar = document.querySelector(".user-avatar img");
-
-    if(!avatar){
-        const toast = document.getElementById("toastSucesso");
-
-        toast.innerHTML = "⚠️ Nenhuma imagem cadastrada";
-        toast.style.background = "#f59e0b";
-
-        toast.classList.add("show");
-
-        setTimeout(() => {
-            toast.classList.remove("show");
-        }, 2500);
-
-        return;
-    }
-
-    document.getElementById("imgVisualizar").src = avatar.src;
-    document.getElementById("modalVisualizar").style.display = "flex";
-
-}
-
-function fecharVisualizar(){
-    document.getElementById("modalVisualizar").style.display = "none";
-}
-
-function abrirDados(){
-    document.getElementById("modalDados").style.display = "flex";
-}
-
-function fecharDados(){
-    document.getElementById("modalDados").style.display = "none";
-}
-document.querySelectorAll(".coluna").forEach(coluna => {
-
-    new Sortable(coluna, {
-        group: "kanban",
-        animation: 200,
-        draggable: ".card-task",
-        filter: ".menu-card, .btn-menu-card",
-        preventOnFilter: false,
-
-        ghostClass: "sortable-ghost",
-        chosenClass: "sortable-chosen",
-        dragClass: "sortable-drag",
-
-        forceFallback: true,
-        fallbackOnBody: true,
-        swapThreshold: 0.65
-    });
-
-});
-function toggleMenuLista(botao){
-
-    const menu = botao.nextElementSibling;
-
-    document.querySelectorAll(".menu-lista").forEach(item=>{
-        if(item !== menu){
-            item.style.display = "none";
-        }
-    });
-
-    menu.style.display =
-        menu.style.display === "block"
-        ? "none"
-        : "block";
-}
-
-
-let colunaSelecionada = null;
-
-function adicionarCard(link){
-
-    colunaSelecionada = link.closest(".coluna");
-
-    document.getElementById("modalNovoCard").style.display = "flex";
-
-    document.getElementById("nomeNovoCard").value = "";
-
-    link.closest(".menu-lista").style.display = "none";
-}
-
-function fecharNovoCard(){
-    document.getElementById("modalNovoCard").style.display = "none";
-}
-
-function salvarNovoCard(){
-
-    const nome = document.getElementById("nomeNovoCard").value.trim();
-
-    if(nome === ""){
-        return;
-    }
-
-    const csrf =
-        document.querySelector("[name=csrfmiddlewaretoken]").value;
-
-    fetch("/card/criar/", {
-        method:"POST",
-        headers:{
-            "Content-Type":"application/json",
-            "X-CSRFToken": csrf
-        },
-        body: JSON.stringify({
-            titulo: nome,
-            coluna: colunaSelecionada.dataset.coluna
-        })
-    })
-    .then(res => res.json())
-    .then(data => {
-
-        const novo = document.createElement("div");
-
-        novo.className = "card-task";
-        novo.setAttribute("data-id", data.id);
-
-        novo.innerHTML = `
-            <div class="topo-card">
-
-                <span class="titulo-card">${data.titulo}</span>
-
-                <button class="btn-menu-card"
-                    onclick="toggleMenuCard(this)">
-                    ⋮
-                </button>
-
-                <div class="menu-card">
-
-                    <a href="javascript:void(0)"
-                       onclick="renomearCard(this)">
-                       ✏️ Renomear
-                    </a>
-
-                    <a href="javascript:void(0)"
-                       onclick="excluirCard(this)">
-                       🗑️ Excluir
-                    </a>
-
-                </div>
-
-            </div>
-        `;
-
-        colunaSelecionada.appendChild(novo);
-
-        atualizarContador(colunaSelecionada.dataset.coluna, 1);
-
-        fecharNovoCard();
-    });
-
-}
-function toggleMenuCard(botao){
-
-    const menu = botao.nextElementSibling;
-
-    if (menuAberto && menuAberto !== menu){
-        menuAberto.style.display = "none";
-    }
-
-    if (menu.style.display === "block"){
-        menu.style.display = "none";
-        menuAberto = null;
-    } else {
-        menu.style.display = "block";
-        menuAberto = menu;
-    }
-}
-
-
-function excluirCard(link){
-
-    const card = link.closest(".card-task");
-    const cardId = card.getAttribute("data-id");
-
-    const csrf = document.querySelector("[name=csrfmiddlewaretoken]").value;
-
-    fetch(`/card/excluir/${cardId}/`, {
-        method: "POST",
-        headers: {
-            "X-CSRFToken": csrf
-        }
-    })
-    .then(res => res.json())
-    .then(data => {
-
-        if (data.status === "ok") {
-            const coluna = card.closest(".coluna");
-
-            card.remove();
-
-            atualizarContador(coluna.dataset.coluna, -1);
-        }
-
-    });
-
-}
-
-
-let tituloEditando = null;
-
-function renomearCard(link){
-
-    const card = link.closest(".card-task");
-
-    tituloEditando = card.querySelector(".titulo-card");
-
-    document.getElementById("inputRenomearCard").value =
-        tituloEditando.innerText;
-
-    document.getElementById("modalRenomearCard").style.display = "flex";
-}
-function fecharRenomearCard(){
-    document.getElementById("modalRenomearCard").style.display = "none";
-}
-
-function salvarRenomearCard(){
-
-    const novoNome = document.getElementById("inputRenomearCard").value.trim();
-
-    if(novoNome === ""){
-        return;
-    }
-
-    const cardId = tituloEditando.closest(".card-task").getAttribute("data-id");
-
-    const csrf = document.querySelector("[name=csrfmiddlewaretoken]").value;
-
-    fetch(`/card/renomear/${cardId}/`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": csrf
-        },
-        body: JSON.stringify({
-            titulo: novoNome
-        })
-    })
-    .then(res => res.json())
-    .then(data => {
-
-        if(data.status === "ok"){
-            tituloEditando.innerText = novoNome;
-            fecharRenomearCard();
-        }
-
-    });
-
-}
-document.addEventListener("click", function (e) {
-
-    // =========================
-    // FECHAR MENU DA COLUNA
-    // =========================
-    const menusLista = document.querySelectorAll(".menu-lista");
-
-    menusLista.forEach(menu => {
-
-        const botao = menu.previousElementSibling; // ⋮ da coluna
-
-        const clicouDentro = menu.contains(e.target) || botao.contains(e.target);
-
-        if (!clicouDentro) {
-            menu.style.display = "none";
-        }
-
-    });
-
-
-    // =========================
-    // FECHAR MENU DO CARD
-    // =========================
-    const menusCard = document.querySelectorAll(".menu-card");
-
-    menusCard.forEach(menu => {
-
-        const botao = menu.previousElementSibling; // ⋮ do card
-
-        const clicouDentro = menu.contains(e.target) || botao.contains(e.target);
-
-        if (!clicouDentro) {
-            menu.style.display = "none";
-        }
-
-    });
-
-});
-let menuAberto = null;
-
-function toggleMenuLista(botao){
-
-    const menu = botao.nextElementSibling;
-
-    // fecha anterior se for diferente
-    if (menuAberto && menuAberto !== menu){
-        menuAberto.style.display = "none";
-    }
-
-    // alterna atual
-    if (menu.style.display === "block"){
-        menu.style.display = "none";
-        menuAberto = null;
-    } else {
-        menu.style.display = "block";
-        menuAberto = menu;
-    }
-}
-function atualizarContador(colunaCodigo, delta) {
-
-    const coluna = document.querySelector(`[data-coluna="${colunaCodigo}"]`);
-
-    if (!coluna) return;
-
-    const span = coluna.querySelector("h2 span");
-
-    if (!span) return;
-
-    let valorAtual = parseInt(span.innerText || "0");
-
-    span.innerText = valorAtual + delta;
-}
-
-</script>
+<div class="main-content">
+    {% block content %}{% endblock %}
+</div>
+
+<script src="{% static 'cards.js' %}"></script>
+<script src="{% static 'menu.js' %}"></script>
+<script src="{% static 'perfil.js' %}"></script>
+<script src="{% static 'modal.js' %}"></script>
+<script src="{% static 'kanban.js' %}"></script>
 
 </body>
 </html>

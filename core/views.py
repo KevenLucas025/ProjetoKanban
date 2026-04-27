@@ -1,14 +1,25 @@
-from django.db.models import Count
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from accounts.models import Card
+
 
 @login_required
 def dashboard(request):
 
     cards = Card.objects.filter(
         user=request.user
-    ).order_by("ordem", "id")
+    )
+
+    data_de = request.GET.get("de")
+    data_ate = request.GET.get("ate")
+
+    if data_de:
+        cards = cards.filter(criado_em__date__gte=data_de)
+
+    if data_ate:
+        cards = cards.filter(criado_em__date__lte=data_ate)
+
+    cards = cards.order_by("ordem", "id")
 
     contador_colunas = {
         "AF": cards.filter(coluna="AF").count(),

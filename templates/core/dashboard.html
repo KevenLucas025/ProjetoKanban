@@ -6,48 +6,126 @@
 
 <div class="dashboard">
 
-    <header class="topbar">
-        <h1>Boas Vindas ao Kanban</h1>
+        <header class="topbar">
 
-        <div class="user-menu">
+    <!-- LADO ESQUERDO -->
+    <div class="topo-esquerda">
 
-            <div class="user-info" onclick="togleMenu()">
+        <!-- BOTÃO MENU LATERAL -->
+        <button 
+            class="btn-menu-lateral"
+            type="button"
+            data-bs-toggle="offcanvas"
+            data-bs-target="#menuLateral">
+            ☰
+        </button>
 
-                <span class="nome-user">
-                    {{ request.user.first_name }}
-                </span>
+        <!-- FILTRO -->
+        <form class="filtro-data" id="formFiltroData" method="GET">
 
-                <div class="user-avatar">
-                    {% if request.user.profile.foto %}
-                        <img src="{{ request.user.profile.foto.url }}" alt="Foto">
-                    {% else %}
-                        {{ request.user.username|slice:":1"|upper }}
-                    {% endif %}
-                </div>
-
+            <div class="campo-data">
+                <label>De</label>
+                <input 
+                    type="date"
+                    id="dataDe"
+                    name="de"
+                    value="{{ request.GET.de }}"
+                >
             </div>
 
-            <div class="dropdown-menu" id="menuPerfil">
-
-                <a href="javascript:void(0)" onclick="abrirUpload()">📷 Adicionar Foto</a>
-                <a href="javascript:void(0)" onclick="removerFoto()">❌ Remover Foto</a>
-                <a href="javascript:void(0)" onclick="visualizarFoto()">👁️ Visualizar Foto</a>
-                <a href="javascript:void(0)" onclick="abrirDados()">👤 Meus Dados</a>
-                <a href="javascript:void(0)" onclick="sairSistema()">🚪 Sair</a>
-
+            <div class="campo-data">
+                <label>Até</label>
+                <input 
+                    type="date"
+                    id="dataAte"
+                    name="ate"
+                    value="{{ request.GET.ate }}"
+                >
             </div>
 
-            <form id="formFoto"
-                method="POST"
-                action="{% url 'upload_foto' %}"
-                enctype="multipart/form-data"
-                style="display:none;">
-                {% csrf_token %}
-                <input type="file" name="foto" id="inputFoto" accept="image/*">
-            </form>
+            <button type="submit" class="btn-filtrar">
+                🔍 Filtrar
+            </button>
+
+        </form>
+    </div>
+
+
+    <div class="user-menu">
+
+        <div class="user-info" onclick="togleMenu()">
+
+            <span class="nome-user">
+                {{ request.user.first_name }}
+            </span>
+
+            <div class="user-avatar">
+                {% if request.user.profile.foto %}
+                    <img src="{{ request.user.profile.foto.url }}" alt="Foto">
+                {% else %}
+                    {{ request.user.username|slice:":1"|upper }}
+                {% endif %}
+            </div>
 
         </div>
-    </header>
+
+        <div class="dropdown-menu" id="menuPerfil">
+
+            <a href="javascript:void(0)" onclick="abrirUpload()">📷 Adicionar Foto</a>
+            <a href="javascript:void(0)" onclick="removerFoto()">❌ Remover Foto</a>
+            <a href="javascript:void(0)" onclick="visualizarFoto()">👁️ Visualizar Foto</a>
+            <a href="javascript:void(0)" onclick="abrirDados()">👤 Meus Dados</a>
+            <a href="javascript:void(0)" onclick="sairSistema()">🚪 Sair</a>
+
+        </div>
+
+        <form id="formFoto"
+            method="POST"
+            action="{% url 'upload_foto' %}"
+            enctype="multipart/form-data"
+            style="display:none;">
+
+            {% csrf_token %}
+            <input type="file" name="foto" id="inputFoto" accept="image/*">
+
+        </form>
+
+    </div>
+
+</header>
+
+    <!-- MENU LATERAL -->
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="menuLateral">
+
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title">Menu</h5>
+
+            <button 
+                class="btn-close-custom"
+                data-bs-dismiss="offcanvas">
+                ✕
+            </button>
+        </div>
+
+        <div class="offcanvas-body">
+
+            <button class="btn btn-primary w-100 mb-2"
+                onclick="abrirNovoCardGlobal()">
+                ➕ Novos Cards
+            </button>
+
+            <button class="btn btn-outline-secondary w-100 mb-2">
+                📅 Filtros
+            </button>
+
+            <button class="btn btn-outline-danger w-100"
+                onclick="sairSistema()">
+                🚪 Sair
+            </button>
+
+        </div>
+
+    </div>
 
     <div class="board">
 
@@ -66,9 +144,8 @@
                         ➕ Adicionar Card
                     </a>
 
-                    <a href="#">✏️ Renomear Lista</a>
 
-                    <a href="#">🗑️ Excluir Lista</a>
+                    <a href="javascript:void(0)" onclick="excluirLista(this)">🗑️ Excluir Lista</a>
                 </div>
             </div>
 
@@ -80,6 +157,9 @@
                             <span class="titulo-card">
                                 {{ card.titulo }}
                             </span>
+                            <small class="data-card">
+                               📅  {{ card.criado_em|date:"d/m/Y" }}
+                            </small>
 
                             <button class="btn-menu-card"
                                 onclick="toggleMenuCard(this)">
@@ -122,9 +202,8 @@
                         ➕ Adicionar Card
                     </a>
 
-                    <a href="#">✏️ Renomear Lista</a>
 
-                    <a href="#">🗑️ Excluir Lista</a>
+                    <a href="javascript:void(0)" onclick="excluirLista(this)">🗑️ Excluir Lista</a>
                 </div>
             </div>
 
@@ -136,6 +215,9 @@
                             <span class="titulo-card">
                                 {{ card.titulo }}
                             </span>
+                            <small class="data-card">
+                               📅  {{ card.criado_em|date:"d/m/Y" }}
+                            </small>
 
                             <button class="btn-menu-card"
                                 onclick="toggleMenuCard(this)">
@@ -178,9 +260,8 @@
                         ➕ Adicionar Card
                     </a>
 
-                    <a href="#">✏️ Renomear Lista</a>
 
-                    <a href="#">🗑️ Excluir Lista</a>
+                    <a href="javascript:void(0)" onclick="excluirLista(this)">🗑️ Excluir Lista</a>
                 </div>
             </div>
 
@@ -192,6 +273,9 @@
                             <span class="titulo-card">
                                 {{ card.titulo }}
                             </span>
+                            <small class="data-card">
+                               📅  {{ card.criado_em|date:"d/m/Y" }}
+                            </small>
 
                             <button class="btn-menu-card"
                                 onclick="toggleMenuCard(this)">
@@ -234,7 +318,6 @@
                         ➕ Adicionar Card
                     </a>
 
-                    <a href="#">✏️ Renomear Lista</a>
 
                     <a href="#">🗑️ Excluir Lista</a>
                 </div>
@@ -248,6 +331,9 @@
                             <span class="titulo-card">
                                 {{ card.titulo }}
                             </span>
+                            <small class="data-card">
+                               📅  {{ card.criado_em|date:"d/m/Y" }}
+                            </small>
 
                             <button class="btn-menu-card"
                                 onclick="toggleMenuCard(this)">
@@ -290,9 +376,8 @@
                         ➕ Adicionar Card
                     </a>
 
-                    <a href="#">✏️ Renomear Lista</a>
 
-                    <a href="#">🗑️ Excluir Lista</a>
+                    <a href="javascript:void(0)" onclick="excluirLista(this)">🗑️ Excluir Lista</a>
                 </div>
             </div>
 
@@ -304,6 +389,9 @@
                             <span class="titulo-card">
                                 {{ card.titulo }}
                             </span>
+                            <small class="data-card">
+                               📅  {{ card.criado_em|date:"d/m/Y" }}
+                            </small>
 
                             <button class="btn-menu-card"
                                 onclick="toggleMenuCard(this)">
@@ -346,9 +434,8 @@
                         ➕ Adicionar Card
                     </a>
 
-                    <a href="#">✏️ Renomear Lista</a>
 
-                    <a href="#">🗑️ Excluir Lista</a>
+                    <a href="javascript:void(0)" onclick="excluirLista(this)">🗑️ Excluir Lista</a>
                 </div>
             </div>
 
@@ -360,6 +447,9 @@
                             <span class="titulo-card">
                                 {{ card.titulo }}
                             </span>
+                            <small class="data-card">
+                               📅  {{ card.criado_em|date:"d/m/Y" }}
+                            </small>
 
                             <button class="btn-menu-card"
                                 onclick="toggleMenuCard(this)">
@@ -492,7 +582,7 @@
                 Cancelar
             </button>
 
-            <button onclick="salvarNovoCard()" class="btn-remover">
+            <button onclick="salvarNovoCard()" class="btn-salvar">
                 Salvar
             </button>
         </div>
@@ -523,10 +613,119 @@
                 Cancelar
             </button>
 
-            <button onclick="salvarRenomearCard()" class="btn-remover">
+            <button onclick="salvarRenomearCard()" class="btn-salvar">
                 Salvar
             </button>
         </div>
+
+    </div>
+</div>
+
+<div id="modalExcluirCard" class="modal-confirmar">
+    <div class="box-confirmar">
+
+        <h3>🗑️ Excluir Card</h3>
+
+        <p>Deseja realmente excluir este card?</p>
+
+        <div class="acoes-modal">
+
+            <button onclick="fecharExcluirCard()" class="btn-cancelar">
+                Cancelar
+            </button>
+
+            <button onclick="confirmarExcluirCard()" class="btn-remover">
+                Excluir
+            </button>
+
+        </div>
+
+    </div>
+</div>
+
+<div id="modalExcluirLista" class="modal-confirmar">
+    <div class="box-confirmar">
+
+        <h3>🗑️ Excluir Lista</h3>
+
+        <p>Tem certeza que deseja excluir todos os cards desta lista?</p>
+
+        <div class="acoes-modal">
+            <button onclick="fecharExcluirLista()" class="btn-cancelar">
+                Cancelar
+            </button>
+
+            <button onclick="confirmarExcluirLista()" class="btn-remover">
+                Excluir
+            </button>
+        </div>
+
+    </div>
+</div>
+<div id="toastAlerta" class="toast-alerta">
+    ⚠️ Mensagem
+</div>
+
+<div id="modalNovoCardGlobal" class="modal-confirmar">
+    <div class="box-confirmar">
+
+        <h3>➕ Criar Cards em Massa</h3>
+
+        <!-- título -->
+        <input 
+            type="text"
+            id="tituloCardsGlobal"
+            placeholder="Título dos cards"
+        >
+
+        <!-- seleção de colunas -->
+        <div class="checkbox-colunas">
+
+        <label class="check-item">
+            <input type="checkbox" value="AF">
+            <span>A Fazer</span>
+        </label>
+
+        <label class="check-item">
+            <input type="checkbox" value="PE">
+            <span>Pendente</span>
+        </label>
+
+        <label class="check-item">
+            <input type="checkbox" value="CA">
+            <span>Cancelado</span>
+        </label>
+
+        <label class="check-item">
+            <input type="checkbox" value="FF">
+            <span>Falta Finalizar</span>
+        </label>
+
+        <label class="check-item">
+            <input type="checkbox" value="EP">
+            <span>Em Progresso</span>
+        </label>
+
+        <label class="check-item">
+            <input type="checkbox" value="CO">
+            <span>Concluído</span>
+        </label>
+        
+        <label class="check-item">
+            <input type="checkbox" id="checkAllColunas">
+            <span><strong>Selecionar Todos</strong></span>
+        </label>
+
+    </div>
+
+        <!-- botão salvar GLOBAL -->
+        <button onclick="salvarCardsGlobal()" class="btn-salvar">
+            Salvar em todas selecionadas
+        </button>
+
+        <button onclick="fecharCardsGlobal()" class="btn-cancelar">
+            Cancelar
+        </button>
 
     </div>
 </div>
