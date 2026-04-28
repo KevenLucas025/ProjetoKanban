@@ -595,3 +595,44 @@ function recalcularTotalGlobal() {
         totalGlobalSpan.innerText = somaTotal;
     }
 }
+const board = document.querySelector('.board');
+
+board.addEventListener('wheel', function (e) {
+
+    const isInsideColumn = e.target.closest('.lista-cards');
+
+    // Se estiver dentro da coluna → deixa scroll normal (vertical)
+    if (isInsideColumn) {
+        return; // não faz nada
+    }
+
+    // Se NÃO estiver dentro da coluna → transforma em scroll horizontal
+    e.preventDefault();
+    board.scrollLeft += e.deltaY;
+
+}, { passive: false });
+
+function buscarCard(termo) {
+
+    termo = termo.toLowerCase().trim();
+
+    const cards = document.querySelectorAll(".card-task");
+
+    cards.forEach(card => {
+
+        const titulo = card.querySelector(".titulo-card")?.innerText.toLowerCase() || "";
+
+        if (titulo.includes(termo)) {
+            card.style.display = "block";
+        } else {
+            card.style.display = "none";
+        }
+    });
+}
+function abrirBuscaCard() {
+    const termo = prompt("Digite o nome do card para buscar:");
+
+    if (termo === null) return; // cancelou
+
+    buscarCard(termo);
+}

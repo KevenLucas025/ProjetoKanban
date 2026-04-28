@@ -704,6 +704,32 @@
 
     </div>
 </div>
+<div class="modal-busca" id="modal-confirmar">
+    <div class="box-busca">
+
+        <h3>🔍 Buscar Card</h3>
+
+        <input type="text"
+               id="inputBuscaCard"
+               placeholder="Digite o nome do card...">
+
+        <div class="acoes-busca">
+            <button class="btn-cancelar" onclick="fecharBuscaCard()">
+                Cancelar
+            </button>
+
+            <button class="btn-salvar" onclick="buscarCard()">
+                Buscar
+            </button>
+        </div>
+
+    </div>
+</div>
+
+
+
+
+
 <script src="{% static 'js/cards.js' %}"></script>
 <script>
     window.TEMA_USUARIO = "{{ request.user.profile.tema }}";
