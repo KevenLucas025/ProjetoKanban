@@ -43,7 +43,7 @@
             margin-bottom:25px;
         }
         input{
-            width: 70%;
+            width: 80%;
             padding:14px;
             margin-bottom:15px;
             border:1px solid #d1d5db;
@@ -787,7 +787,6 @@
         .campo-data input{
             width:150px;
             padding:10px 10px;
-            
             border:none;
             border-radius:10px;
             background:white;
@@ -820,39 +819,43 @@
         }
         .toast-alerta{
             position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(0.9);
-
-            background: #ef4444;
-            color: white;
-
+            top: 20px;
+            right: 20px;
+            min-width: 320px;
+            max-width: 420px;
             padding: 16px 22px;
-            border-radius: 14px;
-
-            box-shadow: 0 20px 60px rgba(0,0,0,.35);
-
-            font-size: 16px;
+            border-radius: 12px;
+            color: white;
+            font-size: 15px;
             font-weight: 600;
-
+            box-shadow: 0 10px 30px rgba(0,0,0,0.20);
             z-index: 99999;
 
-            min-width: 280px;
-            text-align: center;
-
             opacity: 0;
-            pointer-events: none;
-
-            transition: all .25s ease;
+            transform: translateX(120%);
+            transition: all .35s ease;
         }
 
+        /* entra */
         .toast-alerta.show{
             opacity: 1;
-            transform: translate(-50%, -50%) scale(1);
+            transform: translateX(0);
         }
+
+        /* sai */
         .toast-alerta.hide{
             opacity: 0;
-            transform: translate(-50%, -50%) scale(0.85);
+            transform: translateX(120%);
+        }
+
+        /* sucesso */
+        .toast-alerta.sucesso{
+            background: linear-gradient(135deg,#16a34a,#22c55e);
+        }
+
+        /* erro */
+        .toast-alerta.erro{
+            background: linear-gradient(135deg,#dc2626,#ef4444);
         }
         .data-card{
             display:block;
@@ -888,33 +891,84 @@
             color: white;
             border-right: 1px solid rgba(255,255,255,0.1);
         }
-        .offcanvas-body .btn {
-            border-radius: 10px;
-            font-size: 14px;
-            padding: 10px;
-        }
-
-        .offcanvas-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: white;
-        }
-        .btn-close-custom {
-            background: transparent;
-            border: none;
-            color: white;
-            font-size: 20px;
-            cursor: pointer;
-            opacity: 0.8;
-            transition: 0.2s;
-            line-height: 1;
-        }
-
-        .btn-close-custom:hover {
-            opacity: 1;
-            transform: scale(1.15);
+        .offcanvas-header{
+            padding: 18px 18px 14px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
         }
         
+        .offcanvas-body .btn {
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            padding: 11px 14px;
+            transition: all 0.2s ease;
+        }
+        .btn-fechar-menu{
+            width:40px;
+            height:40px;
+            border:none;
+            background: transparent;
+            color:white;
+            font-size:20px;
+            font-weight:bold;
+            cursor:pointer;
+            transition:0.2s;
+        }
+
+        .btn-fechar-menu:hover{
+            background:#dc2626;
+            transform:scale(1);
+            border: none;
+            border-radius: 16px;
+        }
+
+        
+        
+        .offcanvas .card {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 14px;
+            padding: 14px;
+            margin-top: 14px;
+            text-align: center;
+        }
+        .offcanvas .card small {
+            display: block;
+            color: #9ca3af;
+            font-size: 12px;
+            margin-bottom: 6px;
+        }
+        .offcanvas .card h4 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+        /* RODAPÉ */
+        .offcanvas .text-muted {
+            position: relative;
+            color: #6b7280 !important;
+            font-size: 12px;
+            top: 485px;
+        }
+        .card-menu-info{
+            background: rgba(255,255,255,0.04);
+            border:1px solid rgba(255,255,255,0.08);
+            border-radius:14px;
+            padding:15px;
+        }
+
+        .card-menu-info p{
+            margin:8px 0;
+            font-size:14px;
+            color:white;
+        }
+
+        .card-menu-info strong{
+            float:right;
+            color:#60a5fa;
+        }
+
         /* faixa vertical atrás do botão */
         .topo-esquerda::before {
             content: "";
@@ -1000,6 +1054,26 @@
             background: white !important;
             color: black !important;
         }
+        .label-total-cards{
+            background: rgba(255,255,255,0.12);
+            color: white;
+            padding: 10px 18px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 8px 20px rgba(0,0,0,.18);
+            display: inline-flex;
+            align-items: center;
+            position: relative;
+            top: 90px;
+            right: -1320px;
+        }
+        /*Ajusta o espaço do número e da palavra*/
+        #totalCardsNumero{
+            margin-right:6px;
+        }
+        
                         
     </style>
 </head>

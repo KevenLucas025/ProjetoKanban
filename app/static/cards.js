@@ -37,33 +37,32 @@ function salvarNovoCard(){
 
                 <span class="titulo-card">${data.titulo}</span>
 
+                <small class="data-card">
+                    📅 ${data.data}
+                </small>
+
                 <button class="btn-menu-card"
                     onclick="toggleMenuCard(this)">
                     ⋮
                 </button>
 
                 <div class="menu-card">
-
-                    <a href="javascript:void(0)"
-                       onclick="renomearCard(this)">
-                       ✏️ Renomear
-                    </a>
-
-                    <a href="javascript:void(0)"
-                       onclick="excluirCard(this)">
-                       🗑️ Excluir
-                    </a>
-
+                    <a href="javascript:void(0)" onclick="renomearCard(this)">✏️ Renomear</a>
+                    <a href="javascript:void(0)" onclick="excluirCard(this)">🗑️ Excluir</a>
                 </div>
 
             </div>
-        `;
+            `;
 
         colunaSelecionada.appendChild(novo);
 
         atualizarContador(colunaSelecionada.dataset.coluna, 1);
 
+        recalcularTotalGlobal();
+
         fecharNovoCard();
+
+        
     });
 
 }
@@ -110,12 +109,16 @@ function confirmarExcluirCard(){
     .then(data => {
 
         if(data.status === "ok"){
-
             const coluna = cardParaExcluir.closest(".coluna");
+            const colunaCodigo = coluna.dataset.coluna;
 
             cardParaExcluir.remove();
 
-            atualizarContador(coluna.dataset.coluna, -1);
+            // 1. Diminui o número da coluna específica
+            atualizarContador(colunaCodigo, -1);
+
+            // 2. Recalcula o topo baseado nos novos valores das colunas
+            recalcularTotalGlobal();
 
             fecharExcluirCard();
         }
@@ -282,14 +285,18 @@ function confirmarExcluirLista(){
    .then(data => {
         if (data.status === "ok"){
             const cards = listaSelecionada.querySelectorAll(".card-task");
-
             cards.forEach(card => card.remove());
 
-            listaSelecionada.querySelector("h2 span").innerText = "0";
+            // Zera a coluna
+            const spanColuna = listaSelecionada.querySelector("h2 span");
+            if(spanColuna) spanColuna.innerText = "0";
+
+            // Recalcula o topo
+            recalcularTotalGlobal();
 
             fecharExcluirLista();
         }
-   });
+    });
 }
 
 function filtrarCards(){
@@ -298,47 +305,71 @@ function filtrarCards(){
 
     window.location.href = `?de=${de}&ate=${ate}`;
 }
-function mostrarAlerta(msg){
+function mostrarAlerta(msg, tipo = "erro") {
 
     const toast = document.getElementById("toastAlerta");
 
-    toast.innerText = "⚠️ " + msg;
+    toast.innerText = msg;
 
-    // reset animação
-    toast.classList.remove("show");
-    toast.classList.remove("hide");
+    // limpa classes antigas
+    toast.classList.remove("show", "hide", "sucesso", "erro");
 
+    // define cor
+    if (tipo === "sucesso") {
+        toast.classList.add("sucesso");
+    } else {
+        toast.classList.add("erro");
+    }
+
+    // entra
     setTimeout(() => {
         toast.classList.add("show");
     }, 10);
 
+    // tempo maior na tela
     setTimeout(() => {
         toast.classList.add("hide");
 
         setTimeout(() => {
-            toast.classList.remove("show");
-            toast.classList.remove("hide");
-        }, 300);
-    }, 2500);
+            toast.classList.remove("show", "hide", "sucesso", "erro");
+        }, 400);
+
+    }, 3500);
 }
 
 document.getElementById("formFiltroData").addEventListener("submit", function(e){
 
-    const de = document.getElementById("dataDe").value;
-    const ate = document.getElementById("dataAte").value;
+    const inputDe = document.getElementById("dataDe");
+    const inputAte = document.getElementById("dataAte");
+
+    let de = inputDe.value;
+    let ate = inputAte.value;
 
     if(de === "" && ate === ""){
-        e.preventDefault();
-        mostrarAlerta("Preencha as datas para filtrar.");
+        
+        const hoje = new Date();
+
+        const ano = hoje.getFullYear();
+        const mes = String(hoje.getMonth() + 1).padStart(2,"0");
+        const dia = String(hoje.getDate()).padStart(2,"0");
+
+        const primeiroDia = `${ano}-${mes}-01`;
+        const hojeFormatado = `${ano}-${mes}-${dia}`;
+
+        inputDe.value = primeiroDia;
+        inputAte.value = hojeFormatado;
+
         return;
     }
 
+    // Se preencheu só um campo
     if(de !== "" && ate === ""){
         e.preventDefault();
         mostrarAlerta("Preencha a data Até.");
         return;
     }
 
+    // Se preencheu só um campo
     if(de === "" && ate !== ""){
         e.preventDefault();
         mostrarAlerta("Preencha a data De.");
@@ -376,22 +407,33 @@ function abrirNovoCardGlobal(){
     setTimeout(() => input.focus(), 100);
 }
 
-function salvarCardsGlobal(){
-
+function salvarCardsGlobal() {
     const nome = document.getElementById("tituloCardsGlobal").value.trim();
+    const botao = document.querySelector("#modalNovoCardGlobal .btn-salvar");
 
-    if(nome === ""){
-        mostrarAlerta("Digite um título");
+    if (botao.disabled) return;
+
+    // trava botão e mostra carregando
+    botao.disabled = true;
+    botao.innerText = "Salvando...";
+
+    if (nome === "") {
+        mostrarAlerta("⚠️ Digite um título", "erro");
+        botao.disabled = false;
+        botao.innerText = "Salvar em todas selecionadas";
         return;
     }
 
     const checkboxes = document.querySelectorAll(".checkbox-colunas input:checked");
+
     const colunas = Array.from(checkboxes)
         .filter(cb => cb.id !== "checkAllColunas")
         .map(cb => cb.value);
 
-    if(colunas.length === 0){
-        mostrarAlerta("Selecione pelo menos uma coluna");
+    if (colunas.length === 0) {
+        mostrarAlerta("⚠️ Selecione pelo menos uma coluna", "erro");
+        botao.disabled = false;
+        botao.innerText = "Salvar em todas selecionadas";
         return;
     }
 
@@ -409,53 +451,81 @@ function salvarCardsGlobal(){
         })
     })
     .then(res => {
-        if (!res.ok) throw new Error("Erro no fetch");
+        if (!res.ok) throw new Error("Erro no servidor");
         return res.json();
     })
     .then(data => {
 
-    colunas.forEach(colunaCodigo => {
+        colunas.forEach(colunaCodigo => {
 
-        const coluna = document.querySelector(`[data-coluna="${colunaCodigo}"]`);
-        if(!coluna) return;
+            const containerColuna = document.querySelector(
+                `[data-coluna="${colunaCodigo}"]`
+            );
 
-        const cardInfo = data.cards[colunaCodigo];
+            if (!containerColuna) return;
 
-        const novo = document.createElement("div");
-        novo.className = "card-task";
+            const cardInfo = data.cards[colunaCodigo];
+            if (!cardInfo) return;
 
-        novo.setAttribute("data-id", cardInfo.id);
+            const novoCard = document.createElement("div");
 
-        novo.innerHTML = `
-            <div class="topo-card">
+            novoCard.className = "card-task";
+            novoCard.setAttribute("data-id", cardInfo.id);
 
-                <div style="flex:1">
+            novoCard.innerHTML = `
+                <div class="topo-card">
                     <span class="titulo-card">${data.titulo}</span>
+                    <small class="data-card">📅 ${cardInfo.data}</small>
 
-                    <small class="data-card">
-                        📅 ${cardInfo.data}
-                    </small>
+                    <button class="btn-menu-card"
+                        onclick="toggleMenuCard(this)">
+                        ⋮
+                    </button>
+
+                    <div class="menu-card">
+                        <a href="javascript:void(0)"
+                           onclick="renomearCard(this)">
+                           ✏️ Renomear
+                        </a>
+
+                        <a href="javascript:void(0)"
+                           onclick="excluirCard(this)">
+                           🗑️ Excluir
+                        </a>
+                    </div>
                 </div>
+            `;
 
-                <button class="btn-menu-card" onclick="toggleMenuCard(this)">
-                    ⋮
-                </button>
+            containerColuna.appendChild(novoCard);
 
-                <div class="menu-card">
-                    <a href="javascript:void(0)" onclick="renomearCard(this)">✏️ Renomear</a>
-                    <a href="javascript:void(0)" onclick="excluirCard(this)">🗑️ Excluir</a>
-                </div>
+            atualizarContador(colunaCodigo, 1);
+        });
 
-            </div>
-        `;
+        recalcularTotalGlobal();
 
-        coluna.appendChild(novo);
-        atualizarContador(colunaCodigo, 1);
+        // pequeno tempo pro usuário ver o "Salvando..."
+        setTimeout(() => {
+
+            fecharCardsGlobal();
+
+            mostrarAlerta("✅ Cards adicionados com sucesso", "sucesso");
+
+            botao.disabled = false;
+            botao.innerText = "Salvar em todas selecionadas";
+
+        }, 3000);
+
+    })
+    .catch(error => {
+
+        mostrarAlerta("❌ Erro ao criar cards.", "erro");
+        console.error("Detalhes do erro:", error);
+
+        botao.disabled = false;
+        botao.innerText = "Salvar em todas selecionadas";
     });
-
-    fecharCardsGlobal();
-});
 }
+
 
 function fecharCardsGlobal(){
     document.getElementById("modalNovoCardGlobal").style.display = "none";
@@ -485,4 +555,43 @@ if (checkAll) {
             }
         });
     });
+}
+
+function atualizarTotalCards(valor){
+    const total = document.getElementById("totalCardsNumero");
+
+    if (total){
+        total.innerText = valor;
+    }
+}
+function somarTotalCards(qtd = 1) {
+    const totalSpan = document.getElementById("totalCardsNumero");
+    if (totalSpan) {
+        let atual = parseInt(totalSpan.innerText.trim()) || 0;
+        totalSpan.innerText = atual + qtd;
+    }
+}
+
+function diminuirTotalCards(qtd = 1) {
+    const totalSpan = document.getElementById("totalCardsNumero");
+    if (totalSpan) {
+        let atual = parseInt(totalSpan.innerText.trim()) || 0;
+        totalSpan.innerText = Math.max(0, atual - qtd);
+    }
+}
+
+function recalcularTotalGlobal() {
+    const spansColunas = document.querySelectorAll(".coluna h2 span");
+    let somaTotal = 0;
+
+    spansColunas.forEach(span => {
+        // Pega o número dentro do span da coluna
+        const valorColuna = parseInt(span.innerText) || 0;
+        somaTotal += valorColuna;
+    });
+
+    const totalGlobalSpan = document.getElementById("totalCardsNumero");
+    if (totalGlobalSpan) {
+        totalGlobalSpan.innerText = somaTotal;
+    }
 }

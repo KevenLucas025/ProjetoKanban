@@ -1,13 +1,17 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
 
 <div class="dashboard">
+    {% include 'menu_lateral.html' %}
 
-        <header class="topbar">
+    <header class="topbar">
 
+    
+        
     <!-- LADO ESQUERDO -->
     <div class="topo-esquerda">
 
@@ -19,6 +23,10 @@
             data-bs-target="#menuLateral">
             ☰
         </button>
+
+        <div class="label-total-cards">
+            📌 <span id="totalCardsNumero">{{ total_cards }}</span> cards encontrados
+        </div>
 
         <!-- FILTRO -->
         <form class="filtro-data" id="formFiltroData" method="GET">
@@ -93,39 +101,6 @@
     </div>
 
 </header>
-
-    <!-- MENU LATERAL -->
-    <div class="offcanvas offcanvas-start" tabindex="-1" id="menuLateral">
-
-        <div class="offcanvas-header">
-            <h5 class="offcanvas-title">Menu</h5>
-
-            <button 
-                class="btn-close-custom"
-                data-bs-dismiss="offcanvas">
-                ✕
-            </button>
-        </div>
-
-        <div class="offcanvas-body">
-
-            <button class="btn btn-primary w-100 mb-2"
-                onclick="abrirNovoCardGlobal()">
-                ➕ Novos Cards
-            </button>
-
-            <button class="btn btn-outline-secondary w-100 mb-2">
-                📅 Filtros
-            </button>
-
-            <button class="btn btn-outline-danger w-100"
-                onclick="sairSistema()">
-                🚪 Sair
-            </button>
-
-        </div>
-
-    </div>
 
     <div class="board">
 
@@ -319,7 +294,7 @@
                     </a>
 
 
-                    <a href="#">🗑️ Excluir Lista</a>
+                    <a href="javascript:void(0)" onclick="excluirLista(this)">🗑️ Excluir Lista</a>
                 </div>
             </div>
 
@@ -729,5 +704,9 @@
 
     </div>
 </div>
+<script src="{% static 'js/cards.js' %}"></script>
+<script>
+    window.TEMA_USUARIO = "{{ request.user.profile.tema }}";
+</script>
 
 {% endblock %}

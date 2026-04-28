@@ -136,7 +136,8 @@ def criar_card(request):
 
         return JsonResponse({
             "id": card.id,
-            "titulo": card.titulo
+            "titulo": card.titulo,
+            "data": card.criado_em.strftime("%d/%m/%Y")
         })
         
 @login_required   

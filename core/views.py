@@ -20,6 +20,8 @@ def dashboard(request):
         cards = cards.filter(criado_em__date__lte=data_ate)
 
     cards = cards.order_by("ordem", "id")
+    
+    total_cards = cards.count()
 
     contador_colunas = {
         "AF": cards.filter(coluna="AF").count(),
@@ -32,5 +34,6 @@ def dashboard(request):
 
     return render(request, 'core/dashboard.html', {
         "cards": cards,
-        "contador_colunas": contador_colunas
+        "contador_colunas": contador_colunas,
+        "total_cards": total_cards,
     })
