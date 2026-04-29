@@ -612,27 +612,61 @@ board.addEventListener('wheel', function (e) {
 
 }, { passive: false });
 
-function buscarCard(termo) {
+function abrirBuscaCard() {
+    // Fecha o menu do Bootstrap
+    const menuLateral = document.getElementById("menuLateral");
+    const bsOffcanvas = bootstrap.Offcanvas.getInstance(menuLateral);
+    if (bsOffcanvas) bsOffcanvas.hide();
 
-    termo = termo.toLowerCase().trim();
+    // Abre o modal com flex para centralizar
+    document.getElementById("modalBuscaCard").style.display = "flex";
+
+    const input = document.getElementById("inputBuscaCard");
+    input.value = "";
+    setTimeout(() => input.focus(), 150);
+}
+
+function fecharBuscaCard() {
+    document.getElementById("modalBuscaCard").style.display = "none";
+}
+
+function fecharBuscaCard() {
+    document.getElementById("modalBuscaCard").style.display = "none";
+}
+
+function buscarCard() {
+
+    const termo = document.getElementById("inputBuscaCard")
+        .value
+        .toLowerCase()
+        .trim();
 
     const cards = document.querySelectorAll(".card-task");
 
+    let encontrados = 0;
+
     cards.forEach(card => {
 
-        const titulo = card.querySelector(".titulo-card")?.innerText.toLowerCase() || "";
+        const titulo = card.querySelector(".titulo-card")
+            ?.innerText
+            .toLowerCase() || "";
 
         if (titulo.includes(termo)) {
             card.style.display = "block";
+            encontrados++;
         } else {
             card.style.display = "none";
         }
+
     });
-}
-function abrirBuscaCard() {
-    const termo = prompt("Digite o nome do card para buscar:");
 
-    if (termo === null) return; // cancelou
+    atualizarTotalCards(encontrados);
 
-    buscarCard(termo);
+    fecharBuscaCard();
+
+    if (encontrados === 0) {
+        mostrarAlerta("Nenhum card encontrado.");
+    } else {
+        mostrarAlerta(`✅ ${encontrados} card(s) encontrado(s)`, "sucesso");
+    }
 }

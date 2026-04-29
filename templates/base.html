@@ -315,7 +315,7 @@
             
         }
         .card-task.menu-open{
-            z-index: 99999;
+            z-index: 100;
         }
         
 
@@ -405,6 +405,9 @@
             justify-content: center;
             align-items: center;
             z-index: 9999;
+        }
+        .modal-confirmar, .modal-busca {
+            z-index: 3000 !important; /* Acima do menu lateral */
         }
         .box-confirmar{
             background: white;
@@ -890,10 +893,15 @@
             background: #111827; /* fundo escuro elegante */
             color: white;
             border-right: 1px solid rgba(255,255,255,0.1);
+            z-index: 2000 !important;
         }
         .offcanvas-header{
             padding: 18px 18px 14px;
             border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        /* Garante que o fundo escuro do menu lateral também fique acima dos cards */
+        .offcanvas-backdrop {
+            z-index: 1999 !important;
         }
         
         .offcanvas-body .btn {
@@ -1074,7 +1082,48 @@
             margin-right:6px;
         }
         
-                        
+        .modal-busca{
+            position: fixed;
+            inset: 0;
+
+            display: none;
+            align-items: center;
+            justify-content: center;
+
+            z-index: 9999;
+            padding: 20px;
+
+            /* ADICIONE A LINHA ABAIXO */
+            background: rgba(0, 0, 0, 0.5); /* Isso cria o fundo escuro atrás do modal */
+            
+        }
+        #modalBuscaCard h3{
+            margin: 0 0 18px 0;
+            font-size: 22px;
+            font-weight: 700;
+            color: #111827;
+            text-align: center;
+        }
+    
+        #inputBuscaCard{
+            width: 100%;
+            padding: 14px 16px;
+
+            border: 1px solid #d1d5db;
+            border-radius: 12px;
+
+            outline: none;
+            font-size: 15px;
+
+            transition: .2s ease;
+            box-sizing: border-box;
+        }
+
+        #inputBuscaCard:focus{
+            border-color: #2563eb;
+            box-shadow: 0 0 0 4px rgba(37,99,235,.12);
+        }
+                                
     </style>
 </head>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
