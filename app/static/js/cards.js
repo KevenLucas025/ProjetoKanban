@@ -5,6 +5,7 @@ function fecharNovoCard(){
 function salvarNovoCard(){
 
     const nome = document.getElementById("nomeNovoCard").value.trim();
+    
 
     if(nome === ""){
         return;
@@ -22,6 +23,7 @@ function salvarNovoCard(){
         body: JSON.stringify({
             titulo: nome,
             coluna: colunaSelecionada.dataset.coluna
+            
         })
     })
     .then(res => res.json())
@@ -30,11 +32,17 @@ function salvarNovoCard(){
         const novo = document.createElement("div");
 
         novo.className = "card-task";
+
+        // 🔥 IMPORTANTE
         novo.setAttribute("data-id", data.id);
+        novo.setAttribute("data-vencimento", data.vencimento);
+        novo.setAttribute("data-status", data.status);
+        novo.setAttribute("data-coluna", colunaSelecionada.dataset.coluna);
 
         novo.innerHTML = `
             <div class="topo-card">
 
+                <span class="status ${data.status}"></span>
                 <span class="titulo-card">${data.titulo}</span>
 
                 <small class="data-card">
@@ -47,12 +55,13 @@ function salvarNovoCard(){
                 </button>
 
                 <div class="menu-card">
+                    <a href="javascript:void(0)" onclick="abrirDetalhesCard('${data.id}')">ℹ️ Detalhes</a>
                     <a href="javascript:void(0)" onclick="renomearCard(this)">✏️ Renomear</a>
                     <a href="javascript:void(0)" onclick="excluirCard(this)">🗑️ Excluir</a>
                 </div>
 
             </div>
-            `;
+        `;
 
         colunaSelecionada.appendChild(novo);
 
@@ -65,6 +74,136 @@ function salvarNovoCard(){
         
     });
 
+}
+function salvarCardsGlobal() {
+    const nome = document.getElementById("tituloCardsGlobal").value.trim();
+    const botao = document.querySelector("#modalNovoCardGlobal .btn-salvar");
+    
+
+    if (botao.disabled) return;
+
+    // trava botão e mostra carregando
+    botao.disabled = true;
+    botao.innerText = "Salvando...";
+
+    if (nome === "") {
+        mostrarAlerta("⚠️ Digite um título", "erro");
+        botao.disabled = false;
+        botao.innerText = "Salvar em todas selecionadas";
+        return;
+    }
+
+    const checkboxes = document.querySelectorAll(".checkbox-colunas input:checked");
+
+    const colunas = Array.from(checkboxes)
+        .filter(cb => cb.id !== "checkAllColunas")
+        .map(cb => cb.value);
+
+    if (colunas.length === 0) {
+        mostrarAlerta("⚠️ Selecione pelo menos uma coluna", "erro");
+        botao.disabled = false;
+        botao.innerText = "Salvar em todas selecionadas";
+        return;
+    }
+
+    const csrf = document.querySelector("[name=csrfmiddlewaretoken]")?.value;
+
+    fetch("/card/criar-global/", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrf
+        },
+        body: JSON.stringify({
+            titulo: nome,
+            colunas: colunas
+            
+        })
+    })
+    .then(res => {
+        if (!res.ok) throw new Error("Erro no servidor");
+        return res.json();
+    })
+    .then(data => {
+
+        colunas.forEach(colunaCodigo => {
+
+            const containerColuna = document.querySelector(
+                `[data-coluna="${colunaCodigo}"]`
+            );
+
+            if (!containerColuna) return;
+
+            const cardInfo = data.cards[colunaCodigo];
+            if (!cardInfo) return;
+
+            const novoCard = document.createElement("div");
+
+            novoCard.className = "card-task";
+
+            // 🔥 IMPORTANTE
+            novoCard.setAttribute("data-id", cardInfo.id);
+            novoCard.setAttribute("data-vencimento", cardInfo.vencimento);
+            novoCard.setAttribute("data-status", cardInfo.status);
+            novoCard.setAttribute("data-coluna", colunaCodigo);
+
+            novoCard.innerHTML = `
+                <div class="topo-card">
+
+                    <span class="status ${cardInfo.status}"></span>
+                    <span class="titulo-card">${data.titulo}</span>
+
+                    <small class="data-card">📅 ${cardInfo.data}</small>
+
+                    <button class="btn-menu-card"
+                        onclick="toggleMenuCard(this)">
+                        ⋮
+                    </button>
+
+                    <div class="menu-card">
+                        <a href="javascript:void(0)" onclick="abrirDetalhesCard('${cardInfo.id}')">
+                            ℹ️ Detalhes
+                        </a>
+
+                        <a href="javascript:void(0)" onclick="renomearCard(this)">
+                            ✏️ Renomear
+                        </a>
+
+                        <a href="javascript:void(0)" onclick="excluirCard(this)">
+                            🗑️ Excluir
+                        </a>
+                    </div>
+                </div>
+            `;
+
+            containerColuna.appendChild(novoCard);
+
+            atualizarContador(colunaCodigo, 1);
+        });
+
+        recalcularTotalGlobal();
+
+        // pequeno tempo pro usuário ver o "Salvando..."
+        setTimeout(() => {
+
+            fecharCardsGlobal();
+
+            mostrarAlerta("✅ Cards adicionados com sucesso", "sucesso");
+
+            botao.disabled = false;
+            botao.innerText = "Salvar em todas selecionadas";
+
+        }, 3000);
+
+    })
+    .catch(error => {
+
+        mostrarAlerta("❌ Erro ao criar cards.", "erro");
+        console.error("Detalhes do erro:", error);
+
+        botao.disabled = false;
+        botao.innerText = "Salvar em todas selecionadas";
+    });
 }
 
 
@@ -407,124 +546,7 @@ function abrirNovoCardGlobal(){
     setTimeout(() => input.focus(), 100);
 }
 
-function salvarCardsGlobal() {
-    const nome = document.getElementById("tituloCardsGlobal").value.trim();
-    const botao = document.querySelector("#modalNovoCardGlobal .btn-salvar");
 
-    if (botao.disabled) return;
-
-    // trava botão e mostra carregando
-    botao.disabled = true;
-    botao.innerText = "Salvando...";
-
-    if (nome === "") {
-        mostrarAlerta("⚠️ Digite um título", "erro");
-        botao.disabled = false;
-        botao.innerText = "Salvar em todas selecionadas";
-        return;
-    }
-
-    const checkboxes = document.querySelectorAll(".checkbox-colunas input:checked");
-
-    const colunas = Array.from(checkboxes)
-        .filter(cb => cb.id !== "checkAllColunas")
-        .map(cb => cb.value);
-
-    if (colunas.length === 0) {
-        mostrarAlerta("⚠️ Selecione pelo menos uma coluna", "erro");
-        botao.disabled = false;
-        botao.innerText = "Salvar em todas selecionadas";
-        return;
-    }
-
-    const csrf = document.querySelector("[name=csrfmiddlewaretoken]")?.value;
-
-    fetch("/card/criar-global/", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": csrf
-        },
-        body: JSON.stringify({
-            titulo: nome,
-            colunas: colunas
-        })
-    })
-    .then(res => {
-        if (!res.ok) throw new Error("Erro no servidor");
-        return res.json();
-    })
-    .then(data => {
-
-        colunas.forEach(colunaCodigo => {
-
-            const containerColuna = document.querySelector(
-                `[data-coluna="${colunaCodigo}"]`
-            );
-
-            if (!containerColuna) return;
-
-            const cardInfo = data.cards[colunaCodigo];
-            if (!cardInfo) return;
-
-            const novoCard = document.createElement("div");
-
-            novoCard.className = "card-task";
-            novoCard.setAttribute("data-id", cardInfo.id);
-
-            novoCard.innerHTML = `
-                <div class="topo-card">
-                    <span class="titulo-card">${data.titulo}</span>
-                    <small class="data-card">📅 ${cardInfo.data}</small>
-
-                    <button class="btn-menu-card"
-                        onclick="toggleMenuCard(this)">
-                        ⋮
-                    </button>
-
-                    <div class="menu-card">
-                        <a href="javascript:void(0)"
-                           onclick="renomearCard(this)">
-                           ✏️ Renomear
-                        </a>
-
-                        <a href="javascript:void(0)"
-                           onclick="excluirCard(this)">
-                           🗑️ Excluir
-                        </a>
-                    </div>
-                </div>
-            `;
-
-            containerColuna.appendChild(novoCard);
-
-            atualizarContador(colunaCodigo, 1);
-        });
-
-        recalcularTotalGlobal();
-
-        // pequeno tempo pro usuário ver o "Salvando..."
-        setTimeout(() => {
-
-            fecharCardsGlobal();
-
-            mostrarAlerta("✅ Cards adicionados com sucesso", "sucesso");
-
-            botao.disabled = false;
-            botao.innerText = "Salvar em todas selecionadas";
-
-        }, 3000);
-
-    })
-    .catch(error => {
-
-        mostrarAlerta("❌ Erro ao criar cards.", "erro");
-        console.error("Detalhes do erro:", error);
-
-        botao.disabled = false;
-        botao.innerText = "Salvar em todas selecionadas";
-    });
-}
 
 
 function fecharCardsGlobal(){
@@ -630,10 +652,6 @@ function fecharBuscaCard() {
     document.getElementById("modalBuscaCard").style.display = "none";
 }
 
-function fecharBuscaCard() {
-    document.getElementById("modalBuscaCard").style.display = "none";
-}
-
 function buscarCard() {
 
     const termo = document.getElementById("inputBuscaCard")
@@ -670,3 +688,50 @@ function buscarCard() {
         mostrarAlerta(`✅ ${encontrados} card(s) encontrado(s)`, "sucesso");
     }
 }
+
+let cardEmDetalhes = null;
+
+function abrirDetalhesCard(id){
+
+    const card = document.querySelector(`[data-id="${id}"]`);
+
+    const titulo = card.querySelector(".titulo-card").innerText;
+    const dataCriacao = card.querySelector(".data-card").innerText.replace("📅 ", "");
+    const vencimento = card.dataset.vencimento;
+
+    // 👉 converter datas
+    const hoje = new Date();
+
+    const partes = vencimento.split("/");
+    const dataVenc = new Date(`${partes[2]}-${partes[1]}-${partes[0]}`);
+
+    const diffTempo = dataVenc - hoje;
+    const diffDias = Math.ceil(diffTempo / (1000 * 60 * 60 * 24));
+
+    let statusPrazo = "";
+
+    if (diffDias < 0) {
+        statusPrazo = "🔴 Vencido";
+    } else if (diffDias <= 2) {
+        statusPrazo = "🟡 Próximo do vencimento";
+    } else {
+        statusPrazo = "🟢 No prazo";
+    }
+
+    // 👉 preencher modal
+    document.getElementById("detalheTitulo").innerText = titulo;
+    document.getElementById("detalheData").innerText = dataCriacao;
+    document.getElementById("detalheVencimento").innerText = vencimento;
+
+    // 👇 AQUI entra o novo status
+    document.getElementById("detalheStatus").innerText = statusPrazo;
+
+    document.getElementById("modalDetalhesCard").style.display = "flex";
+}
+
+function fecharDetalhesCard() {
+    document.getElementById("modalDetalhesCard").style.display = "none";
+    cardEmDetalhes = null;
+}
+
+

@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from accounts.models import Card
+from datetime import date, timedelta
 
 
 @login_required
@@ -32,8 +33,33 @@ def dashboard(request):
         "CO": cards.filter(coluna="CO").count(),
     }
 
+    # 🧠 NOVA PARTE
+    hoje = date.today()
+
+    # 🔴 Vencidos (não concluídos)
+    vencidos = cards.filter(
+        data_vencimento__lt=hoje
+    ).exclude(coluna="CO").count()
+
+    # 🟡 Próximos do vencimento (até 2 dias)
+    proximos = cards.filter(
+        data_vencimento__gte=hoje,
+        data_vencimento__lte=hoje + timedelta(days=2)
+    ).exclude(coluna="CO").count()
+
+    # ✅ Concluídos hoje
+    concluidos_hoje = cards.filter(
+        coluna="CO",
+        criado_em__date=hoje
+    ).count()
+
     return render(request, 'core/dashboard.html', {
         "cards": cards,
         "contador_colunas": contador_colunas,
         "total_cards": total_cards,
+
+        # 👇 novos dados pro menu
+        "vencidos": vencidos,
+        "proximos": proximos,
+        "concluidos_hoje": concluidos_hoje,
     })

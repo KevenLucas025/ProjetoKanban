@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from datetime import date
 
 
 class Profile(models.Model):
@@ -53,6 +54,24 @@ class Card(models.Model):
     criado_em = models.DateTimeField(
         auto_now_add=True
     )
+    data_vencimento = models.DateField(
+        null=True,
+        blank=True
+    )
+    
+    def status(self):
+        if not self.data_vencimento:
+            return "sem"
+        
+        hoje = date.today()
+        diff = (self.data_vencimento - hoje).days
+        
+        if diff < 0:
+            return "vermelho"
+        elif diff <= 1:
+            return "amarelo"
+        return "verde"
+            
 
     def __str__(self):
         return self.titulo

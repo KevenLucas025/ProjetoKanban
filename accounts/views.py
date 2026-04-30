@@ -7,40 +7,47 @@ from django.contrib.auth import logout
 from django.http import JsonResponse
 from .models import Card, Profile
 from django.contrib import messages
+from datetime import datetime,timedelta
 import json
 
 
 def login_view(request):
     if request.method == 'POST':
-        usuario = request.POST.get('login_user')
-        senha = request.POST.get('login_pass')
+        usuario_input = request.POST.get('login_user','').strip()
+        senha_input = request.POST.get('login_pass','').strip()
         
-        print("USER INPUT:", usuario)
-        print("PASS INPUT:", senha)
         
-        user = authenticate(request, username=usuario, password=senha)
+        # 1. Verificação de campos vazios
+        if not usuario_input or not senha_input:
+            messages.error(request,"Por favor preencha os campos obrigatórios.")
+            return render(request, "accounts/login.html")
         
-        print("AUTH RESULT:", user)
+        # 1. Tentar encontrar o objeto do usuário primeiro (por username ou email)
+        user_obj = None
         
-        if user is None:
-            try:
-                usuario_obj = User.objects.get(email=usuario)
-                
-                user = authenticate(
-                    request,
-                    username=usuario_obj.username,
-                    password=senha
-                )
-            except User.DoesNotExist:
-                pass
-        if user:
+        # Tenta por username
+        user_obj = User.objects.filter(username=usuario_input).first()
+        
+        # Se não achou por username, tenta por email
+        if not user_obj:
+            user_obj = User.objects.filter(email=usuario_input).first()
+            
+        # 2. Se após as duas buscas não achamos ninguém:
+        if not user_obj:
+            messages.error(request, "Usuário ou e-mail não cadastrados.")
+            return render(request, "accounts/login.html")
+        
+        user = authenticate(request, username=user_obj.username, password=senha_input)
+        
+        if user is not None:
             login(request,user)
-            return redirect('dashboard')
-        
-        messages.error(request, "Usuário ou senha inválidos")
+            return redirect("dashboard")
+        else:
+            # Aqui temos certeza: o usuário existe, mas a senha está errada
+            messages.error(request,"Usuário ou senha inválidos.")
+            return render(request,"accounts/login.html")
         
     return render(request, 'accounts/login.html')
-
 
 def register_view(request):
 
@@ -89,6 +96,17 @@ def register_view(request):
     return render(request, 'accounts/register.html')
 
 @login_required
+def mover_card(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+
+        card = Card.objects.get(id=data["id"], user=request.user)
+        card.coluna = data["coluna"]
+        card.save()
+
+        return JsonResponse({"status": "ok"})
+
+@login_required
 @csrf_protect
 def upload_foto(request):
     if request.method == "POST" and request.FILES.get("foto"):
@@ -125,19 +143,29 @@ def logout_view(request):
 def criar_card(request):
     if request.method == "POST":
         data = json.loads(request.body)
+        
+        vencimento = data.get("data_vencimento")
+        
+        data_vencimento = None
+        if vencimento:
+            data_vencimento = datetime.strptime(vencimento,"%Y-%m-%d").date()
+        else:
+            data_vencimento = datetime.today().date() + timedelta(days=5)
 
         card = Card.objects.create(
             user=request.user,
             titulo=data["titulo"],
-            coluna=data["coluna"]
+            coluna=data["coluna"],
+            data_vencimento=data_vencimento
         )
-        print("CRIANDO CARD:", data)
-        print("CARD SALVO:", card.id)
+        
 
         return JsonResponse({
             "id": card.id,
             "titulo": card.titulo,
-            "data": card.criado_em.strftime("%d/%m/%Y")
+            "data": card.criado_em.strftime("%d/%m/%Y"),
+            "vencimento": card.data_vencimento.strftime("%d/%m/%Y") if card.data_vencimento else "",
+            "status": card.status()
         })
         
 @login_required   
@@ -177,6 +205,13 @@ def criar_card_global(request):
 
     titulo = data["titulo"]
     colunas = data["colunas"]
+    vencimento = data.get("data_vencimento")
+    
+    data_vencimento = None
+    if vencimento:
+        data_vencimento = datetime.strptime(vencimento, "%Y-%m-%d").date()
+    else:
+        data_vencimento = datetime.today().date() + timedelta(days=5)
 
     cards_data = {}
 
@@ -184,12 +219,15 @@ def criar_card_global(request):
         card = Card.objects.create(
             titulo=titulo,
             coluna=coluna,
-            user=request.user
+            user=request.user,
+            data_vencimento=data_vencimento
         )
 
         cards_data[coluna] = {
             "id": card.id,
-            "data": card.criado_em.strftime("%d/%m/%Y")
+            "data": card.criado_em.strftime("%d/%m/%Y"),
+            "vencimento": card.data_vencimento.strftime("%d/%m/%Y") if card.data_vencimento else "",
+            "status": card.status()
         }
 
     return JsonResponse({

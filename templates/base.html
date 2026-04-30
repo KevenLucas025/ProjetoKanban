@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="icon" type="image/png" href="{% static 'img/logo_site.png' %}">
 
     <style>
         *{
@@ -1123,7 +1124,106 @@
             border-color: #2563eb;
             box-shadow: 0 0 0 4px rgba(37,99,235,.12);
         }
-                                
+        .modal-overlay{
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6); /* Fundo preto transparente */
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px); /* Efeito de desfoque no fundo */
+        }
+        /* Caixa branca do conteúdo */
+        .modal-content {
+            background: #fff;
+            width: 90%;
+            max-width: 500px;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            position: relative;
+            
+        }
+        
+        #detalheTitulo {
+            margin-top: 0;
+            color: #333;
+            font-size: 1.5rem;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 10px;
+        }
+        #detalheData {
+            display: inline;
+            color: #888;
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+        .corpo-detalhes {
+            margin-top: 20px;
+        }
+
+        /* Botão de fechar dentro do modal */
+        .btn-fechar-modal {
+            position: absolute;
+            top: 10px;
+            right: 12px;
+            background: transparent;
+            border: none;
+            font-size: 22px;
+            cursor: pointer;
+            color: #666;
+            transition: 0.2s;
+        }
+
+        .btn-fechar:hover {
+            color: #000;
+            background-color: transparent;
+        }
+        .titulo-detalhes{
+            margin: 0;
+            font-size: 1.6rem;
+            color: #222;
+        }
+        .info-secundaria {
+            margin-top: 8px;
+            font-size: 0.9rem;
+            color: #777;
+        }
+        .descricao-texto {
+            background: #f8f9fb;
+            padding: 12px;
+            border-radius: 8px;
+            color: #555;
+            line-height: 1.5;
+        }
+        .status {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+
+        .status.verde {
+            background: #22c55e;
+        }
+
+        .status.amarelo {
+            background: #facc15;
+        }
+
+        .status.vermelho {
+            background: #ef4444;
+        }
+        .status.sem{
+            background: #9ca3af; /* cinza */
+        }
+        
+                                            
     </style>
 </head>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
@@ -1135,11 +1235,11 @@
     {% block content %}{% endblock %}
 </div>
 
-<script src="{% static 'cards.js' %}"></script>
-<script src="{% static 'menu.js' %}"></script>
-<script src="{% static 'perfil.js' %}"></script>
-<script src="{% static 'modal.js' %}"></script>
-<script src="{% static 'kanban.js' %}"></script>
+<script src="{% static 'js/kanban.js' %}"></script>
+<script src="{% static 'js/cards.js' %}"></script>
+<script src="{% static 'js/menu.js' %}"></script>
+<script src="{% static 'js/perfil.js' %}"></script>
+<script src="{% static 'js/modal.js' %}"></script>
 
 </body>
 </html>

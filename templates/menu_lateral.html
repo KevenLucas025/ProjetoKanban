@@ -40,8 +40,9 @@
             <p>📌 Total: <strong>{{ total_cards }}</strong></p>
             <p>⏳ Pendentes: <strong>{{ contador_colunas.PE }}</strong></p>
             <p>🚀 Em andamento: <strong>{{ contador_colunas.EP }}</strong></p>
-            <p>⚠️ Vencidos: <strong>3</strong></p>
-            <p>✅ Concluídos hoje: <strong>5</strong></p>
+            <p>⚠️ Vencidos: <strong>{{ vencidos }}</strong></p>
+            <p>🟡 Próximo ao vencimento: <strong>{{ proximos }}</strong></p>
+            <p>✅ Concluídos hoje: <strong>{{ concluidos_hoje }}</strong></p>
         </div>
 
         <div class="text-center text-muted mt-4">
