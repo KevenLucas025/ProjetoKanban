@@ -68,7 +68,7 @@ class Card(models.Model):
         
         if diff < 0:
             return "vermelho"
-        elif diff <= 1:
+        elif diff <= 2:
             return "amarelo"
         return "verde"
             

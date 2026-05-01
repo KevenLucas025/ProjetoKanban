@@ -21,12 +21,14 @@ document.querySelectorAll(".coluna").forEach(coluna => {
         const novaColuna = evt.to.dataset.coluna;
         const colunaAntiga = evt.from.dataset.coluna;
         const cardId = card.dataset.id;
+        
+        const csrf = document.querySelector("[name=csrfmiddlewaretoken]").value;
 
         fetch("/card/mover/", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "X-CSRFToken": getCSRFToken()
+                "X-CSRFToken": csrf
             },
             body: JSON.stringify({
                 id: cardId,
@@ -36,6 +38,9 @@ document.querySelectorAll(".coluna").forEach(coluna => {
         .then(res => res.json())
         .then(data => {
             if (data.status === "ok") {
+
+                // ✅ ATUALIZA A COLUNA NO CARD
+                card.dataset.coluna = novaColuna;
 
                 // 🔢 Atualiza contadores só se salvou
                 if (novaColuna !== colunaAntiga) {

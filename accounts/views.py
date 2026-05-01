@@ -98,13 +98,16 @@ def register_view(request):
 @login_required
 def mover_card(request):
     if request.method == "POST":
-        data = json.loads(request.body)
+        try:
+            data = json.loads(request.body)
 
-        card = Card.objects.get(id=data["id"], user=request.user)
-        card.coluna = data["coluna"]
-        card.save()
+            card = Card.objects.get(id=data["id"], user=request.user)
+            card.coluna = data["coluna"]
+            card.save()
 
-        return JsonResponse({"status": "ok"})
+            return JsonResponse({"status": "ok"})
+        except Exception as e:
+            return JsonResponse({"status": "erro", "msg": str(e)})
 
 @login_required
 @csrf_protect
