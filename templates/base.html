@@ -958,7 +958,7 @@
             position: relative;
             color: #6b7280 !important;
             font-size: 12px;
-            top: 485px;
+            top: 220px;
         }
         .card-menu-info{
             background: rgba(255,255,255,0.04);
@@ -1222,6 +1222,93 @@
         .status.sem{
             background: #9ca3af; /* cinza */
         }
+
+        /* SELECT */
+        #tipoFiltro {
+            border: 1px solid #d1d5db;
+            border-radius: 10px;
+            font-size: 14px;
+            background: #f9fafb;
+            cursor: pointer;
+        }
+        /* HOVER SELECT */
+        #tipoFiltro:hover {
+            border-color: #9ca3af;
+        }
+        #tipoSugestao{
+            border: 1px solid #d1d5db;
+            border-radius: 10px;
+            font-size: 14px;
+            background: #f9fafb;
+            cursor: pointer;
+        }
+        #tipoSugestao:hover{
+            border-color: #9ca3af;
+        }
+        #nomeSugestao,
+        #emailSugestao{
+            width: 100%;
+            padding: 14px 16px;
+
+            border: 1px solid #d1d5db;
+            border-radius: 12px;
+
+            outline: none;
+            font-size: 15px;
+
+            transition: .2s ease;
+            box-sizing: border-box;
+        }
+        #nomeSugestao:focus,
+        #emailSugestao:focus{
+            border-color: #2563eb;
+            box-shadow: 0 0 0 4px rgba(37,99,235,.12);
+        }
+       #descricaoSugestao {
+        width: 100%;
+        min-height: 100px;
+        padding: 12px;
+
+        border-radius: 8px;
+        border: 1px solid #444;
+
+        
+        color: #fff;
+
+        font-size: 14px;
+        line-height: 1.5;
+
+        
+        outline: none;
+
+        transition: all 0.2s ease;
+    }
+    #descricaoSugestao:focus {
+        border-color: #4dabf7;
+        box-shadow: 0 0 0 2px rgba(77,171,247,0.2);
+    }
+    #descricaoSugestao::placeholder {
+        color: #aaa;
+        font-style: italic;
+    }
+    .btn-enviar-email{
+        position: absolute;
+        bottom: 15px;
+        left: 85%;
+        transform: translateX(10%);
+        background: #16a34a;
+        color: white;
+        border: none;
+        width: 55px;
+        height: 55px;
+        border-radius: 50%;
+        font-size: 22px;
+        cursor: pointer;
+        z-index: 999;
+    }
+    .btn-enviar-email{
+        background-color: #1d4eb8;
+    }
         
                                             
     </style>
@@ -1229,6 +1316,7 @@
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 <body>
 
 <div class="main-content">

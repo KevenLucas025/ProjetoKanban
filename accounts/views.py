@@ -3,6 +3,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.csrf import csrf_exempt
+from django.core.mail import send_mail
 from django.contrib.auth import logout
 from django.http import JsonResponse
 from .models import Card, Profile
@@ -239,4 +241,38 @@ def criar_card_global(request):
         "cards": cards_data
     })
     
-    
+@csrf_exempt
+def enviar_sugestao(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        
+        nome = data.get("nome")
+        email = data.get("email")
+        tipo = data.get("tipo")
+        descricao = data.get("descricao")
+        
+        assunto = f"[KANBAN] {tipo} - {nome}"
+
+        
+        mensagem = f"""
+Nova sugestão recebida:
+
+👤 Nome: {nome}
+📧 Email: {email}
+📌 Tipo: {tipo}
+
+📝 Descrição:
+{descricao}
+"""
+
+        send_mail(
+            subject=assunto,
+            message=mensagem,
+            from_email=None,
+            recipient_list=["keven.lucas00@hotmail.com"],
+            fail_silently=False,
+        )
+
+        return JsonResponse({"status": "ok"})
+
+    return JsonResponse({"status": "erro"})

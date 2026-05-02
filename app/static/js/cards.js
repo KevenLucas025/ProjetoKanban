@@ -322,41 +322,44 @@ function salvarRenomearCard(){
 }
 document.addEventListener("click", function (e) {
 
+    // 1. ADICIONE ESTA TRAVA: 
+    // Se o clique for em um SELECT, INPUT ou dentro de um MODAL, 
+    // interrompemos a função para não fechar nada por engano.
+    if (e.target.tagName === "SELECT" || 
+        e.target.tagName === "INPUT" || 
+        e.target.closest(".box-confirmar") || 
+        e.target.closest(".modal-confirmar")) {
+        return; 
+    }
+
     // =========================
     // FECHAR MENU DA COLUNA
     // =========================
     const menusLista = document.querySelectorAll(".menu-lista");
-
     menusLista.forEach(menu => {
-
-        const botao = menu.previousElementSibling; // ⋮ da coluna
-
-        const clicouDentro = menu.contains(e.target) || botao.contains(e.target);
-
-        if (!clicouDentro) {
-            menu.style.display = "none";
+        const botao = menu.previousElementSibling; 
+        // Verifica se o botão existe antes de usar o .contains
+        if (botao) {
+            const clicouDentro = menu.contains(e.target) || botao.contains(e.target);
+            if (!clicouDentro) {
+                menu.style.display = "none";
+            }
         }
-
     });
-
 
     // =========================
     // FECHAR MENU DO CARD
     // =========================
     const menusCard = document.querySelectorAll(".menu-card");
-
     menusCard.forEach(menu => {
-
-        const botao = menu.previousElementSibling; // ⋮ do card
-
-        const clicouDentro = menu.contains(e.target) || botao.contains(e.target);
-
-        if (!clicouDentro) {
-            menu.style.display = "none";
+        const botao = menu.previousElementSibling;
+        if (botao) {
+            const clicouDentro = menu.contains(e.target) || botao.contains(e.target);
+            if (!clicouDentro) {
+                menu.style.display = "none";
+            }
         }
-
     });
-
 });
 
 function atualizarContador(colunaCodigo, delta) {
@@ -735,3 +738,170 @@ function fecharDetalhesCard() {
 }
 
 
+// Esta função APENAS abre o modal para você escolher a opção
+function abrirFiltro(){
+    // Primeiro, fecha o menu lateral do Bootstrap se ele estiver aberto
+    const menuLateral = document.getElementById("menuLateral");
+    if (menuLateral) {
+        const bsOffcanvas = bootstrap.Offcanvas.getInstance(menuLateral);
+        if (bsOffcanvas) {
+            bsOffcanvas.hide();
+        }
+    }
+
+    // Abre o modal de filtro
+    const modal = document.getElementById("modalFiltro");
+    modal.style.display = "flex";
+    
+    // Garante que o select esteja limpo e pronto para uso
+    document.getElementById("tipoFiltro").focus();
+}
+
+function fecharFiltro(){
+    document.getElementById("modalFiltro").style.display = "none";
+}
+
+// Esta função é chamada APENAS quando você clica no botão "Aplicar" dentro do modal
+function aplicarFiltro(){
+    const tipo = document.getElementById("tipoFiltro").value;
+    if(!tipo) {
+        mostrarAlerta("⚠️ Selecione uma opção de filtro");
+        return;
+    }
+
+    const colunas = document.querySelectorAll(".lista-cards");
+
+    colunas.forEach(coluna => {
+        const cards = Array.from(coluna.querySelectorAll(".card-task"));
+
+        cards.sort((a,b) => {
+            const tituloA = a.querySelector(".titulo-card").innerText.toLowerCase();
+            const tituloB = b.querySelector(".titulo-card").innerText.toLowerCase();
+
+            const parseData = (txt) => {
+                const partes = txt.replace("📅 ", "").trim().split("/");
+                return new Date(`${partes[2]}-${partes[1]}-${partes[0]}`);
+            };
+
+            if(tipo === "az") return tituloA.localeCompare(tituloB);
+            if(tipo === "za") return tituloB.localeCompare(tituloA);
+            
+            const dataA = a.querySelector(".data-card").innerText;
+            const dataB = b.querySelector(".data-card").innerText;
+
+            if(tipo === "novo") return parseData(dataB) - parseData(dataA);
+            if(tipo === "antigo") return parseData(dataA) - parseData(dataB);
+
+            return 0;
+        });
+
+        cards.forEach(card => coluna.appendChild(card));
+    });
+
+    // Fecha o modal DEPOIS de organizar tudo
+    fecharFiltro();
+    mostrarAlerta("Filtro aplicado!", "sucesso");
+}
+
+function exportarExcel(){
+    console.log("CLICOU EXPORTAR");
+    
+    const cards = document.querySelectorAll(".card-task");
+
+    let dados = [];
+
+    cards.forEach(card => {
+
+        const titulo = card.querySelector(".titulo-card")?.innerText || "";
+        const data = card.querySelector(".data-card")?.innerText.replace("📅 ", "") || "";
+        const status = card.getAttribute("data-status") || "";
+        const coluna = card.getAttribute("data-coluna") || "";
+
+        dados.push({
+            "Título": titulo,
+            "Data Criação": data,
+            "Status": status,
+            "Coluna": coluna
+        });
+    });
+
+    if (dados.length == 0){
+        mostrarAlerta("Nenhum card encontrado para exportar.")
+    }
+
+    // cria a planilha
+    const ws = XLSX.utils.json_to_sheet(dados);
+
+    // cria workbook
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Cards");
+
+
+    // exporta arquivo
+    XLSX.writeFile(wb, "cards_kanban.xlsx");
+
+}
+
+function abrirSugestao(){
+
+    // Primeiro, fecha o menu lateral do Bootstrap se ele estiver aberto
+    const menuLateral = document.getElementById("menuLateral");
+    if (menuLateral) {
+        const bsOffcanvas = bootstrap.Offcanvas.getInstance(menuLateral);
+        if (bsOffcanvas) {
+            bsOffcanvas.hide();
+        }
+    }
+
+    document.getElementById("modalSugestao").style.display = "flex";
+
+    // Garante que o select esteja limpo e pronto para uso
+    document.getElementById("tipoSugestao").focus();
+}
+
+function fecharSugestao(){
+    document.getElementById("modalSugestao").style.display = "none";
+}
+
+function enviarSugestao(){
+
+    
+    const nome = document.getElementById("nomeSugestao").value.trim();
+    const email = document.getElementById("emailSugestao").value.trim();
+    const tipo = document.getElementById("tipoSugestao").value;
+    const descricao = document.getElementById("descricaoSugestao").value.trim();
+
+    if(!nome || !email || !tipo || !descricao){
+        mostrarAlerta("⚠️ Preencha todos os campos");
+        return;
+    }
+
+    const csrf = document.querySelector("[name=csrfmiddlewaretoken]").value;
+
+    fetch("/sugestao/enviar", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrf
+        },
+        body: JSON.stringify({
+            nome,
+            email,
+            tipo,
+            descricao
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        
+        if (data.status === "ok"){
+            mostrarAlerta("✅ Sugestão enviada com sucesso!", "sucesso");
+            fecharSugestao();
+        }else{
+            mostrarAlerta("❌ Erro ao enviar sugestão");
+        }
+    })
+    .catch(() => {
+        mostrarAlerta("❌ Erro na comunicação com o servidor.")
+    });
+}

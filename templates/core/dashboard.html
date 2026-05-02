@@ -834,7 +834,59 @@
     </div>
 </div>
 
+<div id="modalFiltro" class="modal-confirmar">
+    <div class="box-confirmar">
+        <h3>📅 Filtros</h3>
+        
+        <select id="tipoFiltro" style="width:100%; padding:10px; margin-top:10px;">
+            <option value="">Selecione</option>
+            <option value="az">🔤 A → Z</option>
+            <option value="za">🔤 Z → A</option>
+            <option value="novo">📅 Mais recentes</option>
+            <option value="antigo">📅 Mais antigos</option>
+        </select>
 
+        <div class="acoes-modal" style="margin-top:20px;">
+            <button onclick="fecharFiltro()" class="btn-cancelar">
+                Cancelar
+            </button>
+
+            <button onclick="aplicarFiltro()" class="btn-salvar">
+                Aplicar
+            </button>
+        </div>
+    </div>
+</div>
+
+<div id="modalSugestao" class="modal-confirmar" style="display: none;">
+    <div class="box-confirmar">
+        <h3>💡 Enviar Sugestão</h3>
+
+        <input type="text" id="nomeSugestao" placeholder="Nome completo">
+         <input type="email" id="emailSugestao" placeholder="Seu e-mail">
+
+         <select  id="tipoSugestao"  style="width:100%; padding:10px; margin-top:10px;">
+            <option value="">Selecione o assunto</option>
+            <option value="Sugestão">Nova sugestão</option>
+            <option value="Melhoria">Inclusão de melhoria</option>
+            <option value="Bug">Bug</option>
+            <option value="Erro">Erro</option>
+            <option value="Outro">Outros</option>
+         </select>
+
+         <textarea id="descricaoSugestao" placeholder="Descreva aqui..." rows="4"></textarea>
+
+         <div class="botoes-modal">
+            <button class="btn-enviar-email" onclick="enviarSugestao()">
+                📤 Enviar
+            </button>
+
+            <button class="btn-cancelar-email" onclick="fecharSugestao()">
+                ❌ Cancelar
+            </button>
+        </div>
+    </div>
+</div>
 
 
 <script src="{% static 'js/kanban.js' %}"></script>
